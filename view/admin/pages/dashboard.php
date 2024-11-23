@@ -14,15 +14,24 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+            <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link active" href="#">Home</a>
+                        <a class="nav-link active" href="dashboard.php">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Manage Users</a>
+                        <a class="nav-link" href="user.php">Users</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Reports</a>
+                        <a class="nav-link" href="user.php">Staff</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="transactions.php">Transaction</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="approved.php">Approved Transaction</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="report.php">Reports</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="../logout.php">Logout</a>
@@ -53,6 +62,7 @@
                     </div>
                 </div>
             </div>
+            
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>

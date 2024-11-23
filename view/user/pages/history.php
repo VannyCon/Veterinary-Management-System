@@ -1,8 +1,3 @@
-<?php
-    session_start();
-    $userid = $_SESSION['user_id'];
-    
-?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -38,10 +33,10 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link " href="dashboard.php">Home</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="dashboard.php">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="#">Profile</a></li>
-                    <li class="nav-item"><a class="nav-link" href="transaction.php">Transaction</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="appointment.php">Appointment</a></li>
+                    <li class="nav-item"><a class="nav-link " href="transaction.php">Transaction</a></li>
+                    <li class="nav-item"><a class="nav-link" href="appointment.php">Appointment</a></li>
                     <li class="nav-item"><a class="nav-link" href="../logout.php">Logout</a></li>
                 </ul>
             </div>
@@ -62,58 +57,83 @@
             <tbody id="calendarBody"></tbody>
         </table>
 
-        
+        <div class="row">
+            <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                    Status: Pending   
+                    </h2>
+                    <div class="card-body">
+                        <p>Date: September 2,2024 </p>
+                        <p>Time: 10:20Am</p>
+                        <p><strong>Pet Detail</strong></p>
+                        <p>Pet Name: Bogart</p>
+                        <p>Services: Deworming</p>
+                       
+                        <br>
+                        <p>Pet Name: Snow</p>
+                        <p>Services: Vaccine</p>
+                        
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+        <br>
+    </div>
 
     <!-- Modal for adding events -->
     <div class="modal fade" id="eventModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Appointment</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form action="appointment_process.php" method="post">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Appointment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="eventForm">
                 <div class="modal-body">
-                    <input type="hidden" value="<?php echo $userid; ?>" class="form-control" id="ownerName" name="user_id" required>
                     <div class="mb-3">
                         <label for="eventDate" class="form-label">Date</label>
-                        <input type="text" class="form-control" id="eventDate" name="created_date" readonly>
+                        <input type="text" class="form-control" id="eventDate" readonly>
                     </div>
-                    <input type="hidden" class="form-control" id="eventTime" name="created_time" readonly>
+                    <input type="hidden" class="form-control" id="eventTime" readonly>
                     <div class="mb-3">
                         <label for="eventService" class="form-label">Service</label>
-                        <select class="form-select" id="eventService" name="service_id" required>
+                        <select class="form-select" id="eventService" required>
                             <option value="" disabled selected>Select a service</option>
-                            <option value="SERVICE-001">Deworming</option>
-                            <option value="SERVICE-002">Vaccination</option>
-                            <option value="SERVICE-003">Checkup</option>
-                            <option value="SERVICE-004">Grooming</option>
+                            <option value="Deworming">Deworming</option>
+                            <option value="Vaccination">Vaccination</option>
+                            <option value="Checkup">Checkup</option>
+                            <option value="Grooming">Grooming</option>
                         </select>
                     </div>
+                    
                     <div class="mb-3">
-                        <label for="eventPet" class="form-label">Pet</label>
-                        <select class="form-select" id="eventPet" name="pet_id" required>
+                        <label for="eventService" class="form-label">Pet</label>
+                        <select class="form-select" id="eventService" required>
                             <option value="" disabled selected>Select a Pet</option>
-                            <option value="PET-1001">Bogart</option>
-                            <option value="PET-1002">Max</option>
-                            <option value="PET-1003">Snow</option>
-                            <option value="PET-1004">Blacky</option>
+                            <option value="PET-001">Bogart</option>
+                            <option value="PET-002">Max</option>
+                            <option value="PET-003">Snow</option>
+                            <option value="PET-004">Blacky</option>
                         </select>
                     </div>
+                  
                     <div class="mb-3">
                         <label for="eventSymptoms" class="form-label">Symptoms</label>
-                        <textarea class="form-control" id="eventSymptoms" name="pet_symptoms" rows="3" placeholder="Describe symptoms..."></textarea>
+                        <textarea class="form-control" id="eventSymptoms" rows="3" placeholder="Describe symptoms..."></textarea>
+                    </div>  
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Save</button>
-                </div>
-            </form>
+
+                </form>
+            </div>
         </div>
     </div>
-</div>
-
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
@@ -231,6 +251,7 @@
 
         // Handle form submission for adding events
         eventForm.addEventListener("submit", (e) => {
+            e.preventDefault();
             const newEvent = {
                 date: eventDateInput.value,
                 title: eventTitleInput.value,

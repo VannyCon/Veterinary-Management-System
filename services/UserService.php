@@ -1,5 +1,26 @@
 <?php 
 session_start();
+   // Generate Custome Status ID
+function appointmentID() {
+    // Prefix (optional) for the patient ID (e.g., "patient-")
+    $prefix = "APT-";
+    
+    // Get the current timestamp in microseconds
+    $timestamp = microtime(true);
+    
+    // Generate a random number to add more uniqueness
+    $randomNumber = mt_rand(100000, 999999);
+    
+    // Hash the timestamp and random number to create a unique identifier
+    $uniqueHash = hash('sha256', $timestamp . $randomNumber);
+    
+    // Take the first 12 characters of the hash (or any desired length)
+    $patientID = substr($uniqueHash, 0, 10);
+    
+    // Return the final patient ID with prefix
+    return $prefix . strtoupper($patientID);
+}
+
 //if The Location is not exist yet then this will run which mean it will create new location and User Custome LocID
 $AppointID = $this->appointmentID();
 $userid = $_SESSION['user_id'];
