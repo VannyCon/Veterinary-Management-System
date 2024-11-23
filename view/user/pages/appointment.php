@@ -27,7 +27,7 @@
 <body>
     <div class="container mt-5">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <button id="prevMonth" class="btn btn-primary">Previous</button>
+            <!-- <button id="prevMonth" class="btn btn-primary">Previous</button> -->
             <h2 id="monthYear"></h2>
             <button id="nextMonth" class="btn btn-primary">Next</button>
         </div>
@@ -56,7 +56,6 @@
                         <input type="text" class="form-control" id="eventDate" readonly>
                     </div>
                     <input type="hidden" class="form-control" id="eventTime" readonly>
-                    
                     <div class="mb-3">
                         <label for="eventService" class="form-label">Service</label>
                         <select class="form-select" id="eventService" required>
@@ -67,7 +66,7 @@
                             <option value="Grooming">Grooming</option>
                         </select>
                     </div>
-
+                    
                     <div class="mb-3">
                         <label for="eventService" class="form-label">Pet</label>
                         <select class="form-select" id="eventService" required>
@@ -78,11 +77,11 @@
                             <option value="PET-004">Blacky</option>
                         </select>
                     </div>
-                 
+                  
                     <div class="mb-3">
                         <label for="eventSymptoms" class="form-label">Symptoms</label>
                         <textarea class="form-control" id="eventSymptoms" rows="3" placeholder="Describe symptoms..."></textarea>
-                    </div>   
+                    </div>  
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         <button type="submit" class="btn btn-primary">Save</button>
@@ -106,7 +105,6 @@
 
         const monthYear = document.getElementById("monthYear");
         const calendarBody = document.getElementById("calendarBody");
-        const prevMonth = document.getElementById("prevMonth");
         const nextMonth = document.getElementById("nextMonth");
         const eventModal = new bootstrap.Modal(document.getElementById("eventModal"));
         const eventForm = document.getElementById("eventForm");
@@ -221,10 +219,6 @@
             renderCalendar(currentDate);
         });
 
-        prevMonth.addEventListener("click", () => {
-            currentDate.setMonth(currentDate.getMonth() - 1);
-            fetchSlots(); // Re-fetch slots for the new month
-        });
 
         nextMonth.addEventListener("click", () => {
             currentDate.setMonth(currentDate.getMonth() + 1);
