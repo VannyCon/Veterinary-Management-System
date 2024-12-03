@@ -31,7 +31,7 @@
                         <a class="nav-link" href="approved.php">Approved Transaction</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="report.php">Reports</a>
+                        <a class="nav-link" href="#">Reports</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="../logout.php">Logout</a>

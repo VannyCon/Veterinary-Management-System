@@ -3,7 +3,7 @@ session_start();
 $servername = "localhost"; // Change as per your setup
 $username = "root"; // Your database username
 $password = ""; // Your database password
-$dbname = "system_db"; // Your database name
+$dbname = "pet_db"; // Your database name
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
@@ -33,17 +33,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if ($result->num_rows > 0) {
         $user = $result->fetch_assoc();
-        // Compare plaintext passwords
+        
+        // Compare plaintext passwords (Consider hashing in production)
         if ($password === $user['password']) {
+            /////////////////////////////////////////////////////
             // Store user_id and isApproved in session
             $_SESSION['user_id'] = $user['user_id'];
             $_SESSION['isApproved'] = $user['isApproved'];
+            /////////////////////////////////////////////////////
+
             // Redirect based on approval status
-            if ($user['isApproved']) {
-                header("Location: pages/dashboard.php"); // Redirect to user dashboard
+            if ($user['isApproved'] === 1) {
+                header("Location: pages/dashboard.php");
+                exit;
+            } else if ($user['isApproved'] === 0) {
+                header("Location: pages/decline.php");
+                exit;
+            } else if (is_null($user['isApproved'])) { // Check explicitly for NULL
+                header("Location: pages/pending.php");
                 exit;
             } else {
-                echo "Your account is not approved yet.";
+                echo "Invalid approval status.";
+                exit;
             }
         } else {
             echo "Invalid password.";
@@ -55,4 +66,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt->close();
     $conn->close();
 }
+
 ?>

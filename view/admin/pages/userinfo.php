@@ -2,11 +2,12 @@
 
 /////////////////////////////////////////////////////
 session_start(); // Ensure the session is started  
-if(!isset($_SESSION['user_id'])) {
+if(!isset($_GET['user_id'])) {
     header("Location: ../index.php"); 
 }
 /////////////////////////////////////////////////////
 
+$user_id = $_GET['user_id'];
 // Database connection
 $host = 'localhost';
 $dbname = 'pet_db';
@@ -42,8 +43,8 @@ try {
     }
 
     // Fetch pet information for the logged-in user
-    if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
-        $pets = getAllPetInfo($pdo, $_SESSION['user_id']);
+    if (isset($user_id) && !empty($user_id)) {
+        $pets = getAllPetInfo($pdo, $user_id);
     } else {
         echo '<p class="text-danger">User is not logged in.</p>';
         exit;
@@ -66,27 +67,45 @@ try {
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+<nav class="navbar navbar-expand-lg navbar-dark bg-danger">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">User Dashboard</a>
+            <a class="navbar-brand" href="#">Admin Dashboard</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="navfitem"><a class="nav-link active" href="dashboard.php">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Profile</a></li>
-                    <li class="nav-item"><a class="nav-link" href="transaction.php">Transaction</a></li>
-                    <li class="nav-item"><a class="nav-link" href="appointment.php">Appointment</a></li>
-                    <li class="nav-item"><a class="nav-link" href="logout.php">Logout</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="dashboard.php">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="users.php">Users</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="staff.php">Staff</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="transactions.php">Transaction</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="approved.php">Approved Transaction</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="events.php">Events</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Reports</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="logout.php">Logout</a>
+                    </li>
                 </ul>
             </div>
         </div>
     </nav>
 
     <div class="container mt-4">
-        <h1 class="text-primary">Welcome, User!</h1>
-        <p>Here, you can view and update your profile information.</p>
+        <a href="dashboard.php" class="btn btn-outline-danger mb-3">Back</a>
 
         <div class="card">
             <div class="card-body">
@@ -99,7 +118,7 @@ try {
                     FROM tbl_user 
                     WHERE user_id = ?"; 
                     $stmt = $pdo->prepare($query);
-                    $stmt->execute([$_SESSION['user_id']]);
+                    $stmt->execute([$_GET['user_id']]);
                     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
                     if ($user) {
@@ -118,8 +137,6 @@ try {
                     echo '<p class="text-danger">Error fetching user information: ' . htmlspecialchars($e->getMessage()) . '</p>';
                 }
                 ?>
-
-                <a href="edit_profile.php" class="btn btn-primary mt-3">Edit Profile</a>
             </div>
         </div>
 
@@ -130,9 +147,6 @@ try {
                 <div class="row">
                     <div class="col">
                         <h5 class="card-title">Pet</h5>
-                    </div>
-                    <div class="col text-end">
-                        <a href="pet_add.php" class="btn btn-warning">Add Pet</a>
                     </div>
                 </div>
             </div>
@@ -150,12 +164,6 @@ try {
                                             <h5 class="card-title">' . htmlspecialchars($pet['pet_name']) . '</h5>
                                             <p class="card-text">Species: ' . htmlspecialchars($pet['pet_species']) . '</p>
                                             <p class="card-text">Age: ' . htmlspecialchars($pet['pet_age']) . '</p>
-                                            <!-- Trigger Edit Modal -->
-                                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editPetModal" data-pet-id="' . htmlspecialchars($pet['pet_id']) . '" data-pet-name="' . htmlspecialchars($pet['pet_name']) . '" data-pet-species="' . htmlspecialchars($pet['pet_species']) . '" data-pet-age="' . htmlspecialchars($pet['pet_age']) . '">Edit</button>
-                                            
-                                            <!-- Trigger Delete Modal -->
-                                            <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deletePetModal" data-pet-id="' . htmlspecialchars($pet['pet_id']) . '">Delete</button>
-                                            
                                             <a href="pet_history.php?pet_id=' . htmlspecialchars($pet['pet_id']) . '" class="btn btn-info">History</a>
                                         </div>
                                     </div>

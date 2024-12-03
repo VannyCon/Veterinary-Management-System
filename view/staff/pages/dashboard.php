@@ -1,11 +1,25 @@
+<?php
+
+/////////////////////////////////////////////////////
+session_start(); // Ensure the session is started  
+if(!isset($_SESSION['staff'])) {
+    header("Location: ../index.php"); 
+}
+/////////////////////////////////////////////////////
+
+// OPTIONAL: You can fetch more staff details here if needed from the database
+?>
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Staff Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
+
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-warning">
         <div class="container-fluid">
@@ -22,14 +36,14 @@
                         <a class="nav-link" href="#">Tasks</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="../logout.php">Logout</a>
+                    <li class="nav-item"><a class="nav-link" href="logout.php">Logout</a></li>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
     <div class="container mt-4">
-        <h1 class="text-warning">Welcome, Staff Member!</h1>
+        <h1 class="text-warning">Welcome, <?php echo htmlspecialchars($_SESSION['staff']); ?>!</h1>
         <p>Here, you can view your assigned tasks and report progress.</p>
         <div class="card">
             <div class="card-body">
@@ -65,4 +79,5 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

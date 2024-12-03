@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 30, 2024 at 06:53 AM
+-- Generation Time: Dec 03, 2024 at 01:36 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `system_db`
+-- Database: `pet_db`
 --
 
 -- --------------------------------------------------------
@@ -179,7 +179,8 @@ CREATE TABLE `tbl_pet` (
 
 INSERT INTO `tbl_pet` (`id`, `pet_id`, `user_id`, `pet_name`, `pet_species`, `pet_age`) VALUES
 (1, 'PET-1001', 'USER-001', 'Kitty', 'Cat', '2 Years Old'),
-(2, 'PET-1002', 'USER-001', 'Bogarts', 'Dog', '1');
+(2, 'PET-1002', 'USER-001', 'Bogarts', 'Dog', '1'),
+(3, 'PET_674d7b8a79b79', 'USR_674aad7a5138a', 'Leonard', 'Cat', '3 months');
 
 -- --------------------------------------------------------
 
@@ -219,7 +220,8 @@ CREATE TABLE `tbl_staff` (
 --
 
 INSERT INTO `tbl_staff` (`id`, `username`, `password`) VALUES
-(1, 'mherjoy', 'mherjoy123');
+(1, 'mherjoy', 'mherjoy123'),
+(3, 'mikel', 'mikel123');
 
 -- --------------------------------------------------------
 
@@ -230,19 +232,29 @@ INSERT INTO `tbl_staff` (`id`, `username`, `password`) VALUES
 CREATE TABLE `tbl_user` (
   `id` int(10) NOT NULL,
   `user_id` varchar(50) NOT NULL,
-  `fullname` varchar(255) NOT NULL,
   `username` varchar(50) NOT NULL,
   `password` varchar(255) NOT NULL,
-  `contact_number` varchar(255) NOT NULL,
-  `isApproved` tinyint(1) NOT NULL
+  `fullname` varchar(255) NOT NULL,
+  `address` varchar(50) NOT NULL,
+  `phone_number` varchar(255) NOT NULL,
+  `isApproved` tinyint(4) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `tbl_user`
 --
 
-INSERT INTO `tbl_user` (`id`, `user_id`, `fullname`, `username`, `password`, `contact_number`, `isApproved`) VALUES
-(1, 'USER-001', '', 'ivan', 'ivan', '09123223223', 1);
+INSERT INTO `tbl_user` (`id`, `user_id`, `username`, `password`, `fullname`, `address`, `phone_number`, `isApproved`) VALUES
+(2, 'USR_674aad7a5138a', 'ervin', 'ervin123', 'Ervin Ian Villaceran', 'Brgy Zone 5, Cadiz City, Negros Occidental', '09663949324', 1),
+(5, 'USR_674ac97078699', 'awdawd', 'awdaw', 'awdaw', 'dawdaw', 'dawd', 1),
+(9, 'USR_674acdcfe2af7', 'AWDAW', 'AWDAW', 'AWDA', 'WDAWDA', 'DAWDAWD', 1),
+(12, 'USR_674ad47780431', 'mikel', 'undefined', 'Mikel Maningo', 'Zone 1', '09663949324', 1),
+(13, 'USR_674ad8791ee15', 'kyla', 'kyla123', 'Mherjoy Bedayos', 'SITIO CANIPAAN', '09663949324', 1),
+(14, 'USR_674ad8a4512a4', 'awdaw', 'awdawd', 'awd', 'awdawd', 'awdawd', 1),
+(15, 'USR_674d5f377b7a2', 'pending', 'pending', 'sss', 'ss', 's', 1),
+(16, 'USR_674d60efb9b15', 'xx', 'xx', 'xx', 'xx', 'xx', 1),
+(18, 'USR_674d61e6e796f', 'floryJOhnManingo', 'floryJOhnManingo', 'floryJOhnManingo', 'floryJOhnManingo', 'floryJOhnManingo', 1),
+(19, 'USR_674ef8f1793cf', 'newuser', 'newuser', 'new user', 'newuser', 'newuser', 1);
 
 --
 -- Indexes for dumped tables
@@ -342,7 +354,7 @@ ALTER TABLE `tbl_diagnosis`
 -- AUTO_INCREMENT for table `tbl_pet`
 --
 ALTER TABLE `tbl_pet`
-  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `tbl_service`
@@ -354,13 +366,13 @@ ALTER TABLE `tbl_service`
 -- AUTO_INCREMENT for table `tbl_staff`
 --
 ALTER TABLE `tbl_staff`
-  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `tbl_user`
 --
 ALTER TABLE `tbl_user`
-  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

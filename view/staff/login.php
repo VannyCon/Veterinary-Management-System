@@ -3,7 +3,7 @@ session_start();
 $servername = "localhost"; // Change as per your setup
 $username = "root"; // Your database username
 $password = ""; // Your database password
-$dbname = "system_db"; // Your database name
+$dbname = "pet_db"; // Your database name
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
@@ -33,19 +33,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if ($result->num_rows > 0) {
         $user = $result->fetch_assoc();
-        // Compare plaintext passwords
+        
+        // Compare plaintext passwords (use password hashing in production)
         if ($password === $user['password']) {
-            // Store user_id and isApproved in session
-            // Redirect based on approval status
-                header("Location: pages/dashboard.php"); // Redirect to user dashboard
-                exit;
-
+            // Start session and store session variables
+            session_start(); 
+            $_SESSION['staff'] = $user['username']; // Store username
+    
+            // Redirect to dashboard
+            header("Location: pages/dashboard.php");
+            exit;
         } else {
-            echo "Invalid password.";
+            echo "Invalid password."; // Handle invalid password
         }
     } else {
-        echo "User not found.";
+        echo "User not found."; // Handle user not found
     }
+    
 
     $stmt->close();
     $conn->close();

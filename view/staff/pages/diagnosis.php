@@ -2,7 +2,7 @@
 session_start();
 // Database connection settings
 $host = 'localhost';
-$dbname = 'system_db';
+$dbname = 'pet_db';
 $username = 'root';
 $password = '';
 

@@ -1,7 +1,7 @@
 <?php 
 // Database connection
 $host = 'localhost';
-$dbname = 'system_db';
+$dbname = 'pet_db';
 $username = 'root';
 $password = '';
 

@@ -3,7 +3,7 @@ session_start(); // Start session to access $_SESSION
 
 // Database connection settings
 $host = 'localhost';
-$dbname = 'system_db';
+$dbname = 'pet_db';
 $username = 'root';
 $password = '';
 

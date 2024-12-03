@@ -32,7 +32,7 @@ try {
         }
     }
 
-    function getAllPetHistory($pdo, $pet_id, $appoinment_id) {
+    function getAllPetHistory($pdo, $pet_id) {
         try {
             // SQL query to fetch pet history by pet_id
             $query = "
@@ -42,11 +42,6 @@ try {
                     ap.user_id,
                     ap.pet_id,
                     ap.pet_symptoms,
-                    u.username,
-                    u.contact_number,
-                    p.pet_name,
-                    p.pet_age,
-                    p.pet_species,
                     d.diagnosis_id,
                     d.pet_diagnosis,
                     d.pet_medication_prescribe,
@@ -59,25 +54,20 @@ try {
                 FROM 
                     tbl_appointment_pets ap
                 JOIN 
-                    tbl_user u ON u.user_id = ap.user_id
-                JOIN 
                     tbl_diagnosis d ON ap.appointment_id = d.appointment_id
                 JOIN 
                     tbl_appointment a ON ap.appointment_id = a.appointment_id
-                 JOIN 
-                    tbl_pet p ON p.pet_id = ap.pet_id
                 JOIN 
                     tbl_service s ON a.service_id = s.service_id
                 WHERE 
-                    ap.pet_id = ? AND a.appointment_id = ?
+                    ap.pet_id = ?
                 GROUP BY 
                     ap.appointment_id
             ";
             
             // Prepare and execute the query
             $stmt = $pdo->prepare($query);
-            $stmt->execute([$pet_id, $appoinment_id]); // Correct
-// Correctly bind $pet_id
+            $stmt->execute([$pet_id]); // Correctly bind $pet_id
             
             // Fetch all results
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -90,10 +80,9 @@ try {
     }
     
     $petID = $_GET['pet_id']; // Get user_id from session
-    $appoinment_id = $_GET['appointment_id'];
     // Call the function and pass the PDO connection and user_id
     $pets = getAllPetInfo($pdo, $petID); // Get all pets for the user
-    $petHistory = getAllPetHistory($pdo, $petID, $appoinment_id); // Get all pets for the user
+    $petHistory = getAllPetHistory($pdo, $petID); // Get all pets for the user
 
 } catch (PDOException $e) {
     // Handle database connection errors
@@ -115,6 +104,7 @@ session_start(); // Start the session at the top of the file
 $user_id =  $_SESSION['user_id'];
 ?>
 <body>
+
 <nav class="navbar navbar-expand-lg navbar-dark bg-danger">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">Admin Dashboard</a>
@@ -122,15 +112,15 @@ $user_id =  $_SESSION['user_id'];
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
                         <a class="nav-link active" href="dashboard.php">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="user.php">Users</a>
+                        <a class="nav-link" href="users.php">Users</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="user.php">Staff</a>
+                        <a class="nav-link" href="staff.php">Staff</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="transactions.php">Transaction</a>
@@ -139,17 +129,42 @@ $user_id =  $_SESSION['user_id'];
                         <a class="nav-link" href="approved.php">Approved Transaction</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="report.php">Reports</a>
+                        <a class="nav-link" href="events.php">Events</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="../logout.php">Logout</a>
+                        <a class="nav-link" href="#">Reports</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="logout.php">Logout</a>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
-   
-        <h1>Diagnosis</h1>
+    <div class="container mt-4">
+        <h1 class="text-danger">Pet History</h1>
+        <p>Here, is the Information of your Dog Bogar</p>
+        <div class="card">
+            <div class="card-body">
+
+            <?php 
+                // Display pets in a card format
+                if (!empty($pets)) {
+                    foreach ($pets as $pet) {
+                        echo '
+                            <h5 class="card-title">Name: ' . htmlspecialchars($pet['pet_name']) . '</h5>
+                            <p class="card-text">Species: ' . htmlspecialchars($pet['pet_species']) . '</p>
+                            <p class="card-text">Age: ' . htmlspecialchars($pet['pet_age']) . '</p>';
+                    }
+                } else {
+                    echo "<p>No pets found.</p>";
+                }
+            ?>
+              
+                
+            </div>
+        </div>
+        <h1>History</h1>
         <div class="card">
             <div class="card-body">
             <?php 
@@ -161,16 +176,6 @@ $user_id =  $_SESSION['user_id'];
                         <div class="card-body">
                             <h5 class="card-title">Date: ' . date("F d, Y", strtotime($history['created_date'])) . '</h5> 
                             <h5 class="card-title">Time: ' . $history['created_time'] . '</h5> 
-                             <p class="card-text">Username: ' . htmlspecialchars($history['username']) . '</p>
-                              <p class="card-text">Contact: ' . htmlspecialchars($history['contact_number']) . '</p>
-                            <p class="card-text">Pet Name: ' . htmlspecialchars($history['pet_name']) . '</p>
-                            <p class="card-text">Age: ' . htmlspecialchars($history['pet_age']) . '</p>
-                            <p class="card-text">Diagnosis: ' . htmlspecialchars($history['pet_diagnosis']) . '</p>
-
-
-                            <p class="card-text">Medication: ' . htmlspecialchars($history['pet_medication_prescribe']) . '</p>
-                            <p class="card-text">Doctor Notes: ' . htmlspecialchars($history['pet_doctor_notes']) . '</p>
-
                             <p class="card-text">Service: ' . htmlspecialchars($history['service_name']) . '</p>
                             <p class="card-text">Symptoms: ' . htmlspecialchars($history['pet_symptoms']) . '</p>
                             <p class="card-text">Diagnosis: ' . htmlspecialchars($history['pet_diagnosis']) . '</p>
