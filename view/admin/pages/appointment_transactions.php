@@ -55,6 +55,8 @@ function getTransaction($pdo, $date)
                         tbl_pet p ON ap.pet_id = p.pet_id
                     WHERE 
                         a.created_date = ?
+                    ORDER BY 
+                        a.created_date ASC, a.created_time ASC;
                 ";
 
         // Prepare and execute the query securely
