@@ -78,7 +78,7 @@ try {
                     <li class="nav-item"><a class="nav-link" href="#">Profile</a></li>
                     <li class="nav-item"><a class="nav-link" href="transaction.php">Transaction</a></li>
                     <li class="nav-item"><a class="nav-link" href="appointment.php">Appointment</a></li>
-                    <li class="nav-item"><a class="nav-link" href="logout.php">Logout</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../logout.php">Logout</a></li>
                 </ul>
             </div>
         </div>
@@ -125,7 +125,7 @@ try {
 
         <br>
 
-        <div class="card">
+        <div class="card mb-3">
             <div class="card-header">
                 <div class="row">
                     <div class="col">

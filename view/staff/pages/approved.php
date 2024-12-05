@@ -8,11 +8,11 @@ $username = 'root';
 $password = '';
 
 // Check if user is logged in
-if (!isset($_SESSION['user_id'])) {
+if (!isset($_SESSION['staff'])) {
     die("Unauthorized access. Please log in.");
 }
 
-$user_id = $_SESSION['user_id'];
+$user_id = $_SESSION['staff'];
 
 try {
     // Establish PDO connection

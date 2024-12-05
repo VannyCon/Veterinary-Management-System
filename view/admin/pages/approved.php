@@ -115,6 +115,9 @@ $appointments = getTransaction($pdo);
                         <a class="nav-link" href="staff.php">Staff</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="appoinment_calendar.php">Calendar</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="transactions.php">Transaction</a>
                     </li>
                     <li class="nav-item">
@@ -127,7 +130,7 @@ $appointments = getTransaction($pdo);
                         <a class="nav-link" href="#">Reports</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="../../../index.php">Logout</a>
+                        <a class="nav-link" href="logout.php">Logout</a>
                     </li>
                 </ul>
             </div>

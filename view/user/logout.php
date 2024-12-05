@@ -14,6 +14,6 @@ if (isset($_SESSION['user_id'])) {
 
 
 // Redirect to the login page (or another page)
-header("Location: ../index.php");
+header("Location: index.php");
 exit;
 ?>
