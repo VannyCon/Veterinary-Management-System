@@ -56,6 +56,7 @@ try {
     <title>Pet Diagnosis Form</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
+
 <body class="bg-light">
     <div class="container mt-5">
         <div class="row justify-content-center">
@@ -100,7 +101,7 @@ try {
                             </div>
 
                             <div class="form-group mb-3">
-                                <label for="pet_doctor_notes" class="form-label">Doctor's Notes</label>
+                                <label for="pet_doctor_notes" class="form-label">Doctor's Remarks</label>
                                 <textarea class="form-control" id="pet_doctor_notes" name="pet_doctor_notes" rows="3" required></textarea>
                                 <div class="invalid-feedback">
                                     Please provide doctor's notes.

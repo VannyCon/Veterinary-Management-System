@@ -15,7 +15,7 @@ try {
         try {
             // SQL query with joins and conditional logic
             $query = "
-                SELECT 
+               SELECT 
                     DATE(`created_date`) AS `date`, 
                     COUNT(*) AS `count`
                 FROM 
@@ -23,10 +23,11 @@ try {
                 WHERE 
                     MONTH(`created_date`) = MONTH(CURDATE()) 
                     AND YEAR(`created_date`) = YEAR(CURDATE())
+                    AND isApproved = ''
                 GROUP BY 
                     DATE(`created_date`)
                 ORDER BY 
-                    `date` ASC;
+                    `date` ASC
             ";
     
             // Prepare and execute the query

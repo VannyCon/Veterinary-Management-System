@@ -58,9 +58,9 @@ try {
 </head>
 
 <body class="bg-light">
-    <div class="container mt-5">
+    <div class="container mt-2">
         <div class="row justify-content-center">
-            <div class="col-md-8">
+            <div class="col-md-4">
                 <div class="card shadow">
                     <div class="card-header bg-primary text-white">
                         <h3 class="card-title mb-0">Pet Diagnosis Form</h3>
@@ -101,7 +101,7 @@ try {
                             </div>
 
                             <div class="form-group mb-3">
-                                <label for="pet_doctor_notes" class="form-label">Doctor's Notes</label>
+                                <label for="pet_doctor_notes" class="form-label">Doctor's Remarks</label>
                                 <textarea class="form-control" id="pet_doctor_notes" name="pet_doctor_notes" rows="3" required></textarea>
                                 <div class="invalid-feedback">
                                     Please provide doctor's notes.

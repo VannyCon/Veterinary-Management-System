@@ -44,7 +44,7 @@ try {
                     ap.pet_id,
                     ap.pet_symptoms,
                     u.username,
-                    u.contact_number,
+                    u.phone_number,
                     p.pet_name,
                     p.pet_age,
                     p.pet_species,
@@ -152,46 +152,48 @@ $user_id =  $_SESSION['user_id'];
     </nav>
 
     <h1>Diagnosis</h1>
-    <div class="card">
-        <div class="card-body">
-            <?php
-            // Display pet diagnosis history
-            if (!empty($petHistory)) {
-                foreach ($petHistory as $history) {
-                    echo '
-                    <div class="card mb-3">
-                        <div class="card-body">
-                            <h5 class="card-title">Date: ' . date("F d, Y", strtotime($history['created_date'])) . '</h5> 
-                            <h5 class="card-title">Time: ' . $history['created_time'] . '</h5> 
-                             <p class="card-text">Username: ' . htmlspecialchars($history['username']) . '</p>
-                              <p class="card-text">Contact: ' . htmlspecialchars($history['contact_number']) . '</p>
-                            <p class="card-text">Pet Name: ' . htmlspecialchars($history['pet_name']) . '</p>
-                            <p class="card-text">Age: ' . htmlspecialchars($history['pet_age']) . '</p>
-                            <p class="card-text">Diagnosis: ' . htmlspecialchars($history['pet_diagnosis']) . '</p>
-
-
-                            <p class="card-text">Medication: ' . htmlspecialchars($history['pet_medication_prescribe']) . '</p>
-                            <p class="card-text">Doctor Notes: ' . htmlspecialchars($history['pet_doctor_notes']) . '</p>
-
-                            <p class="card-text">Service: ' . htmlspecialchars($history['service_name']) . '</p>
-                            <p class="card-text">Symptoms: ' . htmlspecialchars($history['pet_symptoms']) . '</p>
-                            <p class="card-text">Diagnosis: ' . htmlspecialchars($history['pet_diagnosis']) . '</p>
-                            <p class="card-text">Medication: ' . htmlspecialchars($history['pet_medication_prescribe']) . '</p>
-                            <p class="card-text">Doctor Notes: ' . htmlspecialchars($history['pet_doctor_notes']) . '</p>
+<div class="card">
+    <div class="card-body">
+        <?php
+        // Display pet diagnosis history
+        if (!empty($petHistory)) {
+            foreach ($petHistory as $history) {
+                echo '
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h1>PROFILE</h1>
+                        <div class="row">
+                            <!-- Profile Column -->
+                            <div class="col-md-6">
+                                <p class="card-text">Username: ' . htmlspecialchars($history['username']) . '</p>
+                                <p class="card-text">Contact: ' . htmlspecialchars($history['phone_number']) . '</p>
+                            </div>
+                            <!-- Pet Information Column -->
+                            <div class="col-md-6">
+                                <h1>Pet Information</h1>
+                                <p class="card-text">Pet Name: ' . htmlspecialchars($history['pet_name']) . '</p>
+                                <p class="card-text">Age: ' . htmlspecialchars($history['pet_age']) . '</p>
+                            </div>
                         </div>
-                    </div>';
-                }
-            } else {
-                echo "<p>No history found for this pet.</p>";
+
+                        <h5 class="card-title">Date: ' . date("F d, Y", strtotime($history['created_date'])) . '</h5> 
+                        <h5 class="card-title">Time: ' . $history['created_time'] . '</h5>
+
+                        <h1>Pet Diagnosis</h1>
+                        <p class="card-text">Service: ' . htmlspecialchars($history['service_name']) . '</p>
+                        <p class="card-text">Symptoms: ' . htmlspecialchars($history['pet_symptoms']) . '</p>
+                        <p class="card-text">Diagnosis: ' . htmlspecialchars($history['pet_diagnosis']) . '</p>
+                        <p class="card-text">Medication: ' . htmlspecialchars($history['pet_medication_prescribe']) . '</p>
+                        <p class="card-text">Doctor Notes: ' . htmlspecialchars($history['pet_doctor_notes']) . '</p>
+                    </div>
+                </div>';
             }
-            ?>
-        </div>
+        } else {
+            echo "<p>No history found for this pet.</p>";
+        }
+        ?>
     </div>
-    <br>
+</div>
+<br>
 
-    </div>
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-
-</html>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>

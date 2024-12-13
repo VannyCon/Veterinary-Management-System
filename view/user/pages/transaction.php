@@ -1,4 +1,4 @@
-<?php 
+<?php
 session_start(); // Start session to access $_SESSION
 
 // Database connection settings
@@ -23,17 +23,20 @@ try {
 }
 
 // Function to get all transactions for the logged-in user
-function getTransaction($pdo, $user_id) {
+function getTransaction($pdo, $user_id)
+{
     try {
         // SQL query to fetch appointments and related pet details
         $query = "
-             SELECT 
+    SELECT 
             a.id AS appointment_id,
             a.user_id AS user_id,
             a.service_id AS service_id,
+            s.service_name AS service_name, -- Fetch the service name
             a.isApproved AS isApproved,
             a.created_date AS created_date,
             a.created_time AS created_time,
+            pt.pet_name AS pet_name,
             p.pet_id AS pet_id,
             p.pet_symptoms AS pet_symptoms
         FROM 
@@ -42,10 +45,17 @@ function getTransaction($pdo, $user_id) {
             tbl_appointment_pets AS p
         ON 
             a.appointment_id = p.appointment_id
+        INNER JOIN 
+            tbl_pet AS pt
+        ON 
+            pt.pet_id = p.pet_id
+        INNER JOIN 
+            tbl_service AS s -- Correct table alias for services
+        ON 
+            a.service_id = s.service_id -- Match service ID
         WHERE
-                a.user_id = ?
+            a.user_id = ?;
         ";
-
         // Prepare and execute the query securely
         $stmt = $pdo->prepare($query);
         $stmt->execute([$user_id]);
@@ -63,104 +73,175 @@ $appointments = getTransaction($pdo, $user_id);
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Calendar</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        .day-cell {
-            cursor: pointer;
-            height: 80px;
-            vertical-align: top;
-        }
-        .day-cell.today {
-            background-color: #d4edda;
-        }
-        .event {
-            background-color: #f8d7da;
-            color: #721c24;
-            border-radius: 5px;
-            padding: 2px 5px;
-            margin-top: 5px;
-            font-size: 0.8em;
-        }
-    </style>
-</head>
-<body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">User Dashboard</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link " href="dashboard.php">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Profile</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="transaction.php">Transaction</a></li>
-                    <li class="nav-item"><a class="nav-link " href="appointment.php">Appointment</a></li>
-                    <li class="nav-item"><a class="nav-link" href="../logout.php">Logout</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    <title>Cadiz City Veterinary Office</title>
 
-<div class="container mt-5">
-    <div class="row">
-        <div class="col">
-            <div class="card p-3">
-                <h2 class="card-title">Transaction</h2>
-                <br>
-                <?php foreach ($appointments as $appointment): ?>
-                <table class="table table-bordered rounded">
-                    <thead class="thead-light">
-                        <tr>
-                            <?php 
-                                if($appointment['isApproved'] == "Approved"){
-                                     echo "<th colspan='2' class='bg-success text-white'>Status: Approved</th>";
-                                }else if($appointment['isApproved'] == "Pending"){
-                                     echo "<th colspan='2' class='bg-warning text-white'>Status: Pending</th>";
-                                      // Skip remaining appointment details if denied
-                                }else{
-                                    echo "<th colspan='2' class='bg-danger text-white'>Status: Denied</th>";
-                                }
-                            
-                            ?>
-                        </tr>
-                    </thead>
-                    <tbody>
-                       
-                            <tr>
-                                <td>Date</td>
-                                <td><?= date("F d, Y", strtotime($appointment['created_date'])) ?></td>
-                            </tr>
-                            <tr>
-                                <td>Time</td>
-                                <td><?= date("h:i A", strtotime($appointment['created_time'])) ?></td>
-                            </tr>
-                            <tr>
-                                <td colspan="2" class="bg-secondary text-white"><strong>Pet Details</strong></td>
-                            </tr>
-                            <tr>
-                                <td>Pet ID</td>
-                                <td><?= htmlspecialchars($appointment['pet_id']) ?></td>
-                            </tr>
-                            <tr>
-                                <td>Symptoms</td>
-                                <td><?= htmlspecialchars($appointment['pet_symptoms']) ?></td>
-                            </tr>
-                      
-                    </tbody>
-                </table>
-                <br>
-                <?php endforeach; ?>
-                <br>
-            </div>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../../assets/css/bootstrap.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="../../../assets/vendors/simple-datatables/style.css">
+
+    <link rel="stylesheet" href="../../../assets/vendors/perfect-scrollbar/perfect-scrollbar.css">
+    <link rel="stylesheet" href="../../../assets/vendors/bootstrap-icons/bootstrap-icons.css">
+    <link rel="stylesheet" href="../../../assets/css/app.css">
+    <link rel="shortcut icon" href="../../../assets/images/favicon.svg" type="image/x-icon">
+</head>
+
+<body>
+    <div id="app">
+        <div id="sidebar" class="active">
+            <div class="sidebar-wrapper active">
+                <div class="sidebar-header">
+                    <div class="d-flex justify-content-between">
+                    <div class="logo">
+                    <a href="dashboard.php">
+                        <img src="../../../assets/images/logo/vetoff.png" alt="Logo" srcset="" style="width: 230px; height: auto"> <!-- Adjust width as needed -->
+                    </a>
+                </div>
+                        <div class="toggler">
+                            <a href="#" class="sidebar-hide d-xl-none d-block"><i class="bi bi-x bi-middle"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="sidebar-menu">
+                    <ul class="menu">
+                        <li class="sidebar-title">Menu</li>
+
+                        <li class="sidebar-item ">
+                            <a href="dashboard.php" class='sidebar-link'>
+                                <i class="bi bi-grid-fill"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+
+                        <li class="sidebar-item  ">
+                            <a href="appointment.php" class='sidebar-link'>
+                                <i class="bi bi-grid-1x2-fill"></i>
+                                <span>Appointment</span>
+                            </a>
+                        </li>
+
+                        <li class="sidebar-item active ">
+                            <a href="transaction.php" class='sidebar-link'>
+                                <i class="bi bi-stack"></i>
+                                <span>Transaction</span>
+                            </a>
+                        </li>
+
+                     
+
+                        <li class="sidebar-item  ">
+                            <a href="profile_view.php" class='sidebar-link'>
+                                <i class="bi bi-image-fill"></i>
+                                <span>Profile</span>
+                            </a>
+                        </li>
+
+
+
+                        
+
+                    </ul>
+                    <div class="logout-btn text-center" style="padding: 50px;">
+                    <a href="../logout.php" class="btn btn-primary btn-block mt-4 d-flex align-items-center justify-content-center" style="padding: 8px 12px;">
+                        <i class="fa fa-sign-out-alt mr-2" aria-hidden="true"></i> Logout
+                    </a>
+                </div>
         </div>
     </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+        <div id="main">
+            <header class="mb-3">
+                <a href="#" class="burger-btn d-block d-xl-none">
+                    <i class="bi bi-justify fs-3"></i>
+                </a>
+            </header>
+
+            <div class="page-heading">
+                <div class="page-title">
+                    <div class="row">
+                        <div class="col-12 col-md-6 order-md-1 order-last">
+                            <h3>Transactions</h3>
+                            <p class="text-subtitle text-muted">List of your Transaction status and history</p>
+                        </div>
+                        <div class="col-12 col-md-6 order-md-2 order-first">
+                            <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item"><a href="dashboard.php">Dashboard</a></li>
+                                    <li class="breadcrumb-item active" aria-current="page">Transaction</li>
+                                </ol>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+                <section class="section">
+                    <div class="card">
+                        <div class="card-header">
+                            Simple Datatable
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-striped" id="table1">
+                                <thead>
+                                    <tr>
+                                        <th>Status</th>
+                                        <th>Pet Name</th>
+                                        <th>Services</th>
+                                        <th>Pet Concern</th>
+                                        <th>Appointment Date</th>
+                                        <th>Appointment Time</th>
+                                       
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                 
+                    <?php foreach ($appointments as $appointment): ?>
+                                <tr class="text-center">
+                                    <td class="<?= $appointment['isApproved'] === 'Approved' ? 'bg-success text-white' : ($appointment['isApproved'] === '' ? 'bg-warning text-dark' : 'bg-danger text-white') ?>">
+                                        <?php
+                                        if ($appointment['isApproved'] == '') {
+                                            echo "Pending";
+                                        } else {
+                                            echo htmlspecialchars($appointment['isApproved']);
+                                        } ?>
+                                    </td>
+
+                                    <td><?= htmlspecialchars($appointment['pet_name']) ?></td>
+                                    <td><?= htmlspecialchars($appointment['service_name']) ?></td> <!-- Display service name -->
+                                    <td><?= htmlspecialchars($appointment['pet_symptoms']) ?></td>
+                                    <td><?= date("F d, Y", strtotime($appointment['created_date'])) ?></td>
+                                    <td><?= date("h:i A", strtotime($appointment['created_time'])) ?></td>
+
+
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+
+                    </table>
+                    <br>
+                </div>
+            
+         </section>
+            </div>
+
+           
+    <script src="../../../assets/vendors/perfect-scrollbar/perfect-scrollbar.min.js"></script>
+    <script src="../../../assets/js/bootstrap.bundle.min.js"></script>
+
+    <script src="../../../assets/vendors/simple-datatables/simple-datatables.js"></script>
+    <script>
+        // Simple Datatable
+        let table1 = document.querySelector('#table1');
+        let dataTable = new simpleDatatables.DataTable(table1);
+    </script>
+
+    <script src="../../../assets/js/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+</body>
+
 </html>

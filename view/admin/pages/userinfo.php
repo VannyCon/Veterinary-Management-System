@@ -62,121 +62,227 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Cadiz City Veterinary Office</title>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../../assets/css/bootstrap.css">
+
+    <link rel="stylesheet" href="../../../assets/vendors/iconly/bold.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="../../../assets/vendors/perfect-scrollbar/perfect-scrollbar.css">
+    <link rel="stylesheet" href="../../../assets/vendors/bootstrap-icons/bootstrap-icons.css">
+    <link rel="stylesheet" href="../../../assets/css/app.css">
+    <link rel="shortcut icon" href="../../../assets/images/favicon.svg" type="image/x-icon">
+
+    
 </head>
 
+
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-danger">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">Admin Dashboard</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="dashboard.php">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="users.php">Users</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="staff.php">Staff</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="transactions.php">Transaction</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="approved.php">Approved Transaction</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="events.php">Events</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Reports</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="logout.php">Logout</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <div class="container mt-4">
-        <a href="dashboard.php" class="btn btn-outline-danger mb-3">Back</a>
-
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Profile</h5>
-                <p class="card-text">Update your personal information and preferences.</p>
-                <!-- Fetch user info -->
-                <?php
-                try {
-                    $query = "SELECT id, username, password, fullname, address, phone_number, isApproved 
-                    FROM tbl_user 
-                    WHERE user_id = ?"; 
-                    $stmt = $pdo->prepare($query);
-                    $stmt->execute([$_GET['user_id']]);
-                    $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-                    if ($user) {
-                        echo '<ul class="list-group">';
-                        echo '<li class="list-group-item"><strong>Full Name:</strong> ' . htmlspecialchars($user['fullname']) . '</li>';
-                        echo '<li class="list-group-item"><strong>Username:</strong> ' . htmlspecialchars($user['username']) . '</li>';
-                        echo '<li class="list-group-item"><strong>Password:</strong> ' . htmlspecialchars($user['password']) . '</li>';
-                        echo '<li class="list-group-item"><strong>Address:</strong> ' . htmlspecialchars($user['address']) . '</li>';
-                        echo '<li class="list-group-item"><strong>Phone Number:</strong> ' . htmlspecialchars($user['phone_number']) . '</li>';
-                        echo '<li class="list-group-item"><strong>Account Approval Status:</strong> ' . ($user['isApproved'] ? 'Approved' : 'Pending') . '</li>';
-                        echo '</ul>';
-                    } else {
-                        echo '<p class="text-danger">User information not found for ID: ' . htmlspecialchars($_SESSION['user_id']) . '</p>';
-                    }
-                } catch (PDOException $e) {
-                    echo '<p class="text-danger">Error fetching user information: ' . htmlspecialchars($e->getMessage()) . '</p>';
-                }
-                ?>
-            </div>
-        </div>
-
-        <br>
-
-        <div class="card">
-            <div class="card-header">
-                <div class="row">
-                    <div class="col">
-                        <h5 class="card-title">Pet</h5>
+    <div id="app">
+        <div id="sidebar" class="active">
+            <div class="sidebar-wrapper active">
+                <div class="sidebar-header">
+                    <div class="d-flex justify-content-between">
+                    <div class="logo">
+                            <a href="dashboard.php">
+                                <img src="../../../assets/images/logo/vetoff.png" alt="Logo" srcset="" style="width: 230px; height: auto"> <!-- Adjust width as needed -->
+                            </a>
+                        <div class="toggler">
+                            <a href="#" class="sidebar-hide d-xl-none d-block"><i class="bi bi-x bi-middle"></i></a>
+                        </div>
                     </div>
                 </div>
-            </div>
+                </div>
+                <div class="sidebar-menu">
+                    <ul class="menu">
+                        <li class="sidebar-title">Menu</li>
 
-            <div class="card-body">
-                <div class="row">
-                    <?php
-                    // Check if there are any pets to display
-                    if (!empty($pets)) {
-                        foreach ($pets as $pet) {
-                            echo '
-                                <div class="col-md-4 mb-4">
-                                    <div class="card">
-                                        <div class="card-body">
+                        <li class="sidebar-item ">
+                            <a href="dashboard.php" class='sidebar-link'>
+                                <i class="bi bi-grid-fill"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+
+                        <li class="sidebar-item  has-sub ">
+                            <a href="#" class='sidebar-link'>
+                                <i class="bi bi-stack"></i>
+                                <span>Appointment</span>
+                            </a>
+                            <ul class="submenu ">
+                                <li class="submenu-item ">
+                                    <a href="appointment_transactions.php">Pending</a>
+                                </li>
+                                <li class="submenu-item ">
+                                    <a href="approved.php">Approved</a>
+                                    </li>
+                              
+                              </ul>
+
+                                <li class="sidebar-item active ">
+                                 <a href="all_user.php" class='sidebar-link'>
+                                 <i class="bi bi-pen-fill"></i>
+                                <span>Pet Record</span>
+                            </a>
+                        </li>
+                              
+                         
+                        </li>
+                        <li class="sidebar-item  ">
+                            <a href="events.php" class='sidebar-link'>
+                                <i class="bi bi-grid-fill"></i>
+                                <span>Events</span>
+                            </a>
+                        </li>
+
+                        <li class="sidebar-title">Manage User &amp; Staff</li>
+
+                        <li class="sidebar-item   has-sub">
+                            <a href="users.php" class='sidebar-link'>
+                                <i class="bi bi-hexagon-fill"></i>
+                                <span>User Request</span>
+                            </a>
+                            <ul class="submenu ">
+                                <li class="submenu-item  ">
+                                    <a href="users.php">Pending Account</a>
+                                </li>
+                                <li class="submenu-item ">
+                                    <a href="user_approve_index.php">Approved Account</a>
+                                </li>
+                                <li class="submenu-item ">
+                                    <a href="user_decline_index.php">Declined Account</a>
+                                    
+                            </ul>
+                        </li>
+
+                        <li class="sidebar-item  ">
+                            <a href="staff.php" class='sidebar-link'>
+                                <i class="bi bi-file-earmark-medical-fill"></i>
+                                <span>Staff</span>
+                            </a>
+                        </li>
+                        <div class="logout-btn text-center" style="padding: 50px;">
+                    <a href="logout.php" class="btn btn-primary btn-block mt-4 d-flex align-items-center justify-content-center" style="padding: 8px 12px;">
+                        <i class="fa fa-sign-out-alt mr-2" aria-hidden="true"></i> Logout
+                    </a>
+            
+
+                </div>
+                <button class="sidebar-toggler btn x"><i data-feather="x"></i></button>
+            </div>
+        </div>
+
+    <div id="main">
+                <header class="mb-3">
+                    <a href="#" class="burger-btn d-block d-xl-none">
+                        <i class="bi bi-justify fs-3"></i>
+                    </a>
+                </header>
+                <div class="page-heading">
+                <div id="printSection" class="row mt-4">
+        <!-- Pet Owner's Profile -->
+     
+      <div class="page-heading">
+                
+                <div class="page-title">
+                    <div class="row">
+                        <div class="col-12 col-md-6 order-md-1 order-last">
+                            
+                            <h3>Pet Owner Data</h3>
+                            <p class="text-subtitle text-muted">Client and Daignosis data</p>
+                        </div>
+                        <div class="col-12 col-md-6 order-md-2 order-first">
+                            <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item"><a href="dashboard.php">Dashboard</a></li>
+                                    <li class="breadcrumb-item active" aria-current="page">Pet Record</li>
+                                </ol>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            <div class="page-heading">
+</div>
+     
+        <div class="col-12 col-md-12 mb-4">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white" style="font-size: 1.1rem; font-weight: 500;">Pet Owner's Profile</div>
+                <div class="card-body">
+                                         
+                                    <!-- Fetch user info -->
+                                    <?php
+                                    try {
+                                        $query = "SELECT user_id, fullname, address, phone_number, isApproved 
+                                                  FROM tbl_user 
+                                                  WHERE user_id = ?"; 
+                                        $stmt = $pdo->prepare($query);
+                                        $stmt->execute([$_GET['user_id']]);
+                                        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                                        if ($user) {
+                                           echo ' <div class="col-md-12">';
+                                            echo '<div class="profile-info">';
+                                            echo '<p><strong>Full Name:</strong> ' . htmlspecialchars($user['fullname']) . '</p>';
+                                            echo '<p><strong>Address:</strong> ' . htmlspecialchars($user['address']) . '</p>';
+                                            echo '<p><strong>Phone Number:</strong> ' . htmlspecialchars($user['phone_number']) . '</p>';
+                                            echo '<p><strong>Account Approval Status:</strong> ' . ($user['isApproved'] ? 'Approved' : 'Pending') . '</p>';
+                                            echo '</div>';
+                                        } else {
+                                            echo '<p class="text-danger">User information not found for ID: ' . htmlspecialchars($_GET['user_id']) . '</p>';
+                                        }
+                                    } catch (PDOException $e) {
+                                        echo '<p class="text-danger">Error fetching user information: ' . htmlspecialchars($e->getMessage()) . '</p>';
+                                    }
+                                    ?>
+                                  </div>
+                                        </div>
+                                    </div>
+                                
+
+           
+   
+                            <section class="row mt-4">
+                    <h2>Pet Information</h2>
+                    <div class="row">
+                <?php
+                // Check if there are any pets to display
+                if (!empty($pets)) {
+                    $counter = 0;
+                    foreach ($pets as $pet) {
+                        if ($counter % 3 == 0 && $counter > 0) {
+                            // Create a new row every 3 pets
+                            echo '</div><div class="row">';
+                        }
+                        echo '
+                       <div class="col-6 col-lg-4 col-md-6">
+                                            <div class="card">
+                                                <div class="card-body px-3 py-4-5">
+                                                    <div class="row">
+                                                        <div class="col-md-8">
+                                                            <h6 class="text-muted font-semibold">Pet Name</h6>
                                             <h5 class="card-title">' . htmlspecialchars($pet['pet_name']) . '</h5>
                                             <p class="card-text">Species: ' . htmlspecialchars($pet['pet_species']) . '</p>
                                             <p class="card-text">Age: ' . htmlspecialchars($pet['pet_age']) . '</p>
-                                            <a href="pet_history.php?pet_id=' . htmlspecialchars($pet['pet_id']) . '" class="btn btn-info">History</a>
+                                            <a href="pet_history.php?pet_id=' . htmlspecialchars($pet['pet_id']) .'&user_id='. htmlspecialchars($user['user_id']). '" class="btn btn-primary">History</a>
                                         </div>
                                     </div>
-                                </div>';
-                        }
-                    } else {
-                        // If no pets are found, display a message
-                        echo "<p class='text-muted'>No pets found. Please add a pet.</p>";
+                                </div>
+                            </div>
+                        </div>';
+                        $counter++;
                     }
-                    ?>
-                </div>
-            </div>
+                } else {
+                    echo "<p class='text-muted'>No pets found. Please add a pet.</p>";
+                }
+                ?>
+            </div> <!-- End of row -->
         </div>
+    </div>
+</div>
+
 
         <!-- Edit Pet Modal -->
         <div class="modal fade" id="editPetModal" tabindex="-1" aria-labelledby="editPetModalLabel" aria-hidden="true">
@@ -263,6 +369,25 @@ try {
             modalDeletePetId.value = petId;
         });
     </script>
+
+</script>
+
+
+<script src="../../../assets/vendors/perfect-scrollbar/perfect-scrollbar.min.js"></script>
+<script src="../../../assets/js/bootstrap.bundle.min.js"></script>
+
+<script src="../../../assets/vendors/simple-datatables/simple-datatables.js"></script>
+
+
+<script src="../../../assets/js/main.js"></script>
+<script src="../../../assets/js/bootstrap.bundle.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../../../assets/vendors/perfect-scrollbar/perfect-scrollbar.min.js"></script>
+<script src="../../../js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
 </body>
 
 </html>

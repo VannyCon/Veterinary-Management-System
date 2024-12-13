@@ -33,15 +33,14 @@ try {
     $isApproved = "Pending"; // Current time
     // Prepare for tbl_appointment query (Make sure all columns are handled)
     $insertAppointmentQuery = "
-        INSERT INTO `tbl_appointment` (`appointment_id`, `user_id`, `service_id`, `isApproved`, `created_date`, `created_time`) 
-        VALUES (:appointment_id, :user_id, :service_id, :isApproved, :created_date, :created_time)";
+        INSERT INTO `tbl_appointment` (`appointment_id`, `user_id`, `service_id`, `created_date`, `created_time`) 
+        VALUES (:appointment_id, :user_id, :service_id, :created_date, NOW())";
     $stmt1 = $pdo->prepare($insertAppointmentQuery);
     $stmt1->bindParam(':appointment_id', $appointmentID);
     $stmt1->bindParam(':user_id', $userID);
     $stmt1->bindParam(':service_id', $serviceID);
-    $stmt1->bindParam(':isApproved', $isApproved); // Assuming you set this variable
+ // Assuming you set this variable
     $stmt1->bindParam(':created_date', $createdDate);
-    $stmt1->bindParam(':created_time', $createdTime);
     $stmt1->execute();
 
     // Prepare for tbl_appointment_pets query

@@ -5,13 +5,30 @@ if (!isset($_SESSION['admin'])) {
 }
 $userid = $_SESSION['admin'];
 ?>
+
+
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Calendar</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Cadiz City Veterinary Office</title>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../../assets/css/bootstrap.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="../../../assets/vendors/simple-datatables/style.css">
+
+    <link rel="stylesheet" href="../../../assets/vendors/perfect-scrollbar/perfect-scrollbar.css">
+    <link rel="stylesheet" href="../../../assets/vendors/bootstrap-icons/bootstrap-icons.css">
+    <link rel="stylesheet" href="../../../assets/css/app.css">
+    <link rel="shortcut icon" href="../../../assets/images/favicon.svg" type="image/x-icon">
+
+
     <style>
         .day-cell {
             cursor: pointer;
@@ -36,48 +53,149 @@ $userid = $_SESSION['admin'];
         }
     </style>
 </head>
+
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-danger">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">Admin Dashboard</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="dashboard.php">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="users.php">Users</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="staff.php">Staff</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="transactions.php">Transaction</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="approved.php">Approved Transaction</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="events.php">Events</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Reports</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="../../../index.php">Logout</a>
-                    </li>
-                </ul>
+    <div id="app">
+        <div id="sidebar" class="active">
+            <div class="sidebar-wrapper active">
+                <div class="sidebar-header">
+                    <div class="d-flex justify-content-between">
+                    <div class="logo">
+                            <a href="dashboard.php">
+                                <img src="../../../assets/images/logo/vetoff.png" alt="Logo" srcset="" style="width: 230px; height: auto"> <!-- Adjust width as needed -->
+                            </a>
+                        <div class="toggler">
+                            <a href="#" class="sidebar-hide d-xl-none d-block"><i class="bi bi-x bi-middle"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                </div>
+                <div class="sidebar-menu">
+                    <ul class="menu">
+                        <li class="sidebar-title">Menu</li>
+
+                        <li class="sidebar-item  ">
+                            <a href="dashboard.php" class='sidebar-link'>
+                                <i class="bi bi-grid-fill"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+
+                        <li class="sidebar-item  has-sub">
+                            <a href="#" class='sidebar-link'>
+                                <i class="bi bi-stack"></i>
+                                <span>Appointment</span>
+                            </a>
+                            <ul class="submenu ">
+                                <li class="submenu-item ">
+                                    <a href="transactions.php">Pending</a>
+                                </li>
+                                <li class="submenu-item ">
+                                    <a href="approved.php">Approve</a>
+                                </li>
+                              
+                            </ul>
+
+                            <li class="sidebar-item  ">
+                            <a href="all_user.php" class='sidebar-link'>
+                            <i class="bi bi-pen-fill"></i>
+                                <span>Pet Record</span>
+                            </a>
+                        </li>
+                    
+                        <li class="sidebar-item active ">
+                            <a href="events.php" class='sidebar-link'>
+                                <i class="bi bi-grid-fill"></i>
+                                <span>Events</span>
+                            </a>
+                        </li>
+
+                        <li class="sidebar-title">Manage User &amp; Staff</li>
+
+                        <li class="sidebar-item  has-sub ">
+                            <a href="" class='sidebar-link'>
+                            <i class="bi bi-hexagon-fill"></i>
+                                <span>User Request</span>
+                            </a>
+                            <ul class="submenu ">
+                            <li class="submenu-item ">
+                                    <a href="users.php">Pending Account</a>
+                                </li>
+                                <li class="submenu-item ">
+                                    <a href="user_approve_index.php">Approved Account</a>
+                                </li>
+                                <li class="submenu-item ">
+                                    <a href="user_decline_index.php">Declined Account</a>
+                                </li>
+                            
+                            
+                            </ul>
+                        </li>
+
+                      
+                        <li class="sidebar-item  ">
+                            <a href="staff.php" class='sidebar-link'>
+                                <i class="bi bi-file-earmark-medical-fill"></i>
+                                <span>Staff</span>
+                            </a>
+                        </li>
+
+                        <div class="logout-btn text-center" style="padding: 50px;">
+                    <a href="logout.php" class="btn btn-primary btn-block mt-4 d-flex align-items-center justify-content-center" style="padding: 8px 12px;">
+                        <i class="fa fa-sign-out-alt mr-2" aria-hidden="true"></i> Logout
+                    </a> 
+            
+
+                </div>
+                <button class="sidebar-toggler btn x"><i data-feather="x"></i></button>
             </div>
         </div>
-    </nav>
-<div class="container mt-5">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 id="monthYear"></h2>
-        <button id="nextMonth" class="btn btn-danger">Next</button>
+        
+                <button class="sidebar-toggler btn x"><i data-feather="x"></i></button>
+            </div>
+        </div>
+        
+        <div id="main">
+            <header class="mb-3">
+                <a href="#" class="burger-btn d-block d-xl-none">
+                    <i class="bi bi-justify fs-3"></i>
+                </a>
+            </header>
+
+            <div class="page-heading">
+                <div class="page-title">
+                    <div class="row">
+                        <div class="col-12 col-md-6 order-md-1 order-last">
+                            <h3>Calendar Events</h3>
+                            <p class="text-subtitle text-muted">For user to check they list</p>
+                        </div>
+                        <div class="col-12 col-md-6 order-md-2 order-first">
+                            <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
+                                    <li class="breadcrumb-item active" aria-current="page">Events</li>
+                                </ol>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+
+                <section class="section">
+                    <div class="card">
+                        <div class="card-header">
+                          
+                        </div>
+                                <div class="card-body">
+                            <div class="container mt-5">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+        <button id="prevMonth" class="btn btn-primary me-2">Back</button>
+        <button id="today" class="btn btn-success">Today</button>
     </div>
+    <h2 id="monthYear"></h2>
+    <button id="nextMonth" class="btn btn-primary">Next</button>
+</div>
     <table class="table table-bordered">
         <thead>
             <tr>
@@ -296,9 +414,42 @@ $userid = $_SESSION['admin'];
 
         }
     });
+    // Event listener for "Back" button
+document.getElementById("prevMonth").addEventListener("click", () => {
+    currentDate.setMonth(currentDate.getMonth() - 1); // Go to the previous month
+    fetchEvents(); // Fetch events for the updated month
+});
+
+// Event listener for "Today" button
+document.getElementById("today").addEventListener("click", () => {
+    currentDate = new Date(); // Reset to the current date
+    fetchEvents(); // Fetch events for the current month
+});
+
+// Event listener for "Next" button (already implemented)
+nextMonth.addEventListener("click", () => {
+    currentDate.setMonth(currentDate.getMonth() + 1); // Go to the next month
+    fetchEvents(); // Fetch events for the new month
+});
+
 
     // Initialize the calendar
     fetchEvents();
+    
 </script>
+
+<script src="../../../assets/vendors/perfect-scrollbar/perfect-scrollbar.min.js"></script>
+    <script src="../../../assets/js/bootstrap.bundle.min.js"></script>
+
+    <script src="../../../assets/vendors/simple-datatables/simple-datatables.js"></script>
+   
+
+    <script src="../../../assets/js/main.js"></script>
+    <script src="../../../assets/js/bootstrap.bundle.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../../assets/vendors/perfect-scrollbar/perfect-scrollbar.min.js"></script>
+    <script src="../../../js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>

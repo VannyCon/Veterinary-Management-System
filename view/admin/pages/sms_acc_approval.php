@@ -3,7 +3,7 @@ session_start(); // Start session for flash messages
 
 // Define constants for server and API key
 define("SERVER", "https://app.sms-gateway.app");
-define("API_KEY", "a5c4ecaf4c15268ff086464c3af8ae8600156ff8");
+define("API_KEY", "fa76b2deff12986e365779fe7dbecc48750fe84e");
 
 // Function to send a cURL request
 function sendRequest($url, $postData)
@@ -42,15 +42,15 @@ function sendSingleMessage($number, $message, $device = 0, $schedule = null, $is
 if (isset($_POST['submit'])) {
     // Fetch form data
     $userId = $_POST['user_id'];
-    $fullname = $_POST['full_name'];
-    $mobileNumber = $_POST['mobile_number'];
+    $phone_number = $_POST['phone_number'];
+    $fullname = $_POST['fullname']; // This should now be populated
 
-    // Create the SMS message
+    // Construct the message
     $smsMessage = "Hi $fullname, your account has been approved by the Admin. You can now log in.";
 
+    // Send the SMS and handle response
     try {
-        // Send the SMS
-        $response = sendSingleMessage($mobileNumber, $smsMessage);
+        $response = sendSingleMessage($phone_number, $smsMessage);
 
         // Handle the response
         if (isset($response['ID'])) {
@@ -65,18 +65,16 @@ if (isset($_POST['submit'])) {
         $stmt = $pdo->prepare($sql);
         $stmt->execute(['user_id' => $userId]);
 
-        // Redirect with success
         header("Location: {$_SERVER['HTTP_REFERER']}");
         exit(0);
     } catch (Exception $e) {
-        // Handle errors
         $_SESSION['status'] = "Failed to send message: " . $e->getMessage();
         header("Location: {$_SERVER['HTTP_REFERER']}");
         exit(0);
     }
-} else {
+}
+ else {
     // Redirect if the script is accessed directly
-    header('Location: users.php');
+    header('Location: user_approve_index.php');
     exit(0);
 }
-?>

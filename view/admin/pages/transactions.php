@@ -26,7 +26,6 @@ try {
 function getTransaction($pdo)
 {
     try {
-        // SQL query to fetch appointments and related pet details
         $query = "
                 SELECT 
                     a.id AS appointment_id,
@@ -41,12 +40,13 @@ function getTransaction($pdo)
                     ap.pet_symptoms,
                     u.id AS user_id,
                     u.username,
+                    u.fullname,  -- Assuming the fullname column exists
                     u.phone_number,
                     u.isApproved AS user_approved,
                     p.id AS pet_id,
                     p.pet_name,
                     p.pet_species,
-                    p.pet_age
+                    s.service_name -- Assuming there's a service_name in a 'service' table
                 FROM 
                     tbl_appointment a
                 JOIN 
@@ -55,10 +55,12 @@ function getTransaction($pdo)
                     tbl_user u ON a.user_id = u.user_id
                 JOIN 
                     tbl_pet p ON ap.pet_id = p.pet_id
+                JOIN
+                    tbl_service s ON a.service_id = s.service_id  -- Assuming there's a service table
                 WHERE 
-                    a.isApproved = 'Pending'
+                    a.isApproved = ''
+            ";
 
-                ";
 
         // Prepare and execute the query securely
         $stmt = $pdo->prepare($query);
@@ -77,29 +79,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $appointment_id = isset($_POST['userid']) ? $_POST['userid'] : null;
 
-        // Check if we have an appointment ID
         if (!$appointment_id) {
-            throw new Exception("Appointment ID is required");
+            throw new Exception("Appointment ID is required.");
         }
 
-        // Determine the status based on which button was clicked
         if (isset($_POST['approved'])) {
             $status = "Approved";
         } elseif (isset($_POST['decline'])) {
-            $status = "Decline";
+            $status = "Declined";
         } else {
-            throw new Exception("Invalid action");
+            throw new Exception("Invalid action.");
         }
 
-        // Prepare and execute the update query
+        $user_id = $_POST['user_id'];
+        $phone_number = $_POST['phone_number'];
+        $fullname = $_POST['fullname'];
+
         $stmt = $pdo->prepare("UPDATE tbl_appointment SET isApproved = ? WHERE appointment_id = ?");
         $stmt->execute([$status, $appointment_id]);
 
-        // Set success message
+        // Trigger the SMS notification
+        $url = "http://localhost/vetsystem/pet_system_5%20(2)/pet_system_5/view/admin/pages/sms_appointment_approval.php";
+        $postData = [
+            'appointment_id' => $appointment_id,
+            'user_id' => $user_id,
+            'phone_number' => $phone_number,
+            'fullname' => $fullname,
+            'status' => $status,
+            'submit' => true
+        ];
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        $response = curl_exec($ch);
+        curl_close($ch);
+
         $_SESSION['message'] = "Appointment has been " . strtolower($status) . "d successfully!";
 
-        // Redirect to prevent form resubmission
-        header("Location: " . $_SERVER['PHP_SELF']);
+        if ($status === "Approved") {
+            header("Location: approved.php"); // Redirect to the approved page
+        } else {
+            header("Location: transactions.php"); // Redirect to pending transactions
+        }
         exit();
     } catch (Exception $e) {
         $_SESSION['error'] = "Error: " . $e->getMessage();
@@ -108,16 +133,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+
 // Display messages if they exist
 if (isset($_SESSION['message'])) {
-    echo '<div class="alert alert-success">' . $_SESSION['message'] . '</div>';
+    echo '<div class="alert alert-success text-center" style="margin-top: 20px;">' . $_SESSION['message'] . '</div>';
     unset($_SESSION['message']);
 }
 
 if (isset($_SESSION['error'])) {
-    echo '<div class="alert alert-danger">' . $_SESSION['error'] . '</div>';
+    echo '<div class="alert alert-danger text-center" style="margin-top: 20px;">' . $_SESSION['error'] . '</div>';
     unset($_SESSION['error']);
 }
+
+
 
 // Fetch transactions for the current user
 $appointments = getTransaction($pdo);
@@ -125,116 +153,228 @@ $appointments = getTransaction($pdo);
 <!DOCTYPE html>
 <html lang="en">
 
+
+<!DOCTYPE html>
+<html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Cadiz City Veterinary Office</title>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../../assets/css/bootstrap.css">
+
+    <link rel="stylesheet" href="../../../assets/vendors/simple-datatables/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="../../../assets/vendors/perfect-scrollbar/perfect-scrollbar.css">
+    <link rel="stylesheet" href="../../../assets/vendors/bootstrap-icons/bootstrap-icons.css">
+    <link rel="stylesheet" href="../../../assets/css/app.css">
+    <link rel="shortcut icon" href="../../../assets/images/favicon.svg" type="image/x-icon">
 </head>
 
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-danger">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">Admin Dashboard</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="dashboard.php">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="users.php">Users</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="staff.php">Staff</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="appoinment_calendar.php">Calendar</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="transactions.php">Transaction</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="approved.php">Approved Transaction</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="events.php">Events</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Reports</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="logout.php">Logout</a>
-                    </li>
-                </ul>
+    <div id="app">
+        <div id="sidebar" class="active">
+            <div class="sidebar-wrapper active">
+                <div class="sidebar-header">
+                    <div class="d-flex justify-content-between">
+                        <a href="dashboard.php">
+                            <img src="../../../assets/images/logo/vetoff.png" alt="Logo" srcset="" style="width: 230px; height: auto"> <!-- Adjust width as needed -->
+                        </a>
+                        <div class="toggler">
+                            <a href="#" class="sidebar-hide d-xl-none d-block"><i class="bi bi-x bi-middle"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="sidebar-menu">
+                    <ul class="menu">
+                        <li class="sidebar-title">Menu</li>
+
+                        <li class="sidebar-item  ">
+                            <a href="dashboard.php" class='sidebar-link'>
+                                <i class="bi bi-grid-fill"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+
+                        <li class="sidebar-item  has-sub active">
+                            <a href="transactions.php" class='sidebar-link'>
+                                <i class="bi bi-stack"></i>
+                                <span>Appointment</span>
+                            </a>
+                            <ul class="submenu active">
+                                <li class="submenu-item active">
+                                    <a href="transactions.php">Pending</a>
+                                </li>
+                                <li class="submenu-item ">
+                                    <a href="approved.php">Approved</a>
+                                </li>
+
+
+                            </ul>
+
+                        <li class="sidebar-item  ">
+                            <a href="all_user.php" class='sidebar-link'>
+                                <i class="bi bi-pen-fill"></i>
+                                <span>Pet Record</span>
+                            </a>
+                        </li>
+
+                        <li class="sidebar-item  ">
+                            <a href="index.html" class='sidebar-link'>
+                                <i class="bi bi-grid-fill"></i>
+                                <span>Events</span>
+                            </a>
+                        </li>
+
+                        <li class="sidebar-title">Manage User &amp; Staff</li>
+
+                        <li class="sidebar-item  has-sub">
+                            <a href="#" class='sidebar-link'>
+                                <i class="bi bi-hexagon-fill"></i>
+                                <span>User Request</span>
+                            </a>
+                            <ul class="submenu ">
+                                <li class="submenu-item ">
+                                    <a href="users.php">Pending Account</a>
+                                </li>
+                                <li class="submenu-item ">
+                                    <a href="user_approve_index.php">Approved Account</a>
+                                </li>
+                                <li class="submenu-item ">
+                                    <a href="user_decline_index.php">Declined Account</a>
+
+                            </ul>
+                        </li>
+
+                        <li class="sidebar-item  ">
+                            <a href="staff.php" class='sidebar-link'>
+                                <i class="bi bi-file-earmark-medical-fill"></i>
+                                <span>Staff</span>
+                            </a>
+                        </li>
+                        <div class="logout-btn text-center" style="padding: 50px;">
+                            <a href="logout.php" class="btn btn-primary btn-block mt-4 d-flex align-items-center justify-content-center" style="padding: 8px 12px;">
+                                <i class="fa fa-sign-out-alt mr-2" aria-hidden="true"></i> Logout
+                            </a>
+
+
+                        </div>
+                        <button class="sidebar-toggler btn x"><i data-feather="x"></i></button>
+                </div>
             </div>
-        </div>
-    </nav>
-    <div class="container mt-4">
-        <h1 class="text-danger">Transaction</h1>
-        <p>Here, you can manage users, view reports, and perform administrative tasks.</p>
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-body">
+
+            <div id="main">
+                <header class="mb-3">
+                    <a href="#" class="burger-btn d-block d-xl-none">
+                        <i class="bi bi-justify fs-3"></i>
+                    </a>
+                </header>
+
+                <div class="page-heading">
+                    <div class="page-title">
                         <div class="row">
-                            <div class="col">
-                                <table class="table table-bordered">
-                                    <thead class="thead-dark">
+                            <div class="col-12 col-md-6 order-md-1 order-last">
+                                <h3>List of Pending Appointments</h3>
+                                <p class="text-subtitle text-muted">For admin to check the pending appointments</p>
+                            </div>
+                            <div class="col-12 col-md-6 order-md-2 order-first">
+                                <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                                    <ol class="breadcrumb">
+                                        <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
+                                        <li class="breadcrumb-item active" aria-current="page">Pending Appointments</li>
+                                    </ol>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                    <section class="section">
+                        <div class="card">
+                            <div class="card-header">
+                                Pending Appointments Table
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-striped" id="table1">
+                                    <thead>
                                         <tr>
-                                            <th>ID</th>
-                                            <th>Username</th>
-                                            <th>Service</th>
-                                            <th>Petname</th>
-                                            <th>Symptoms</th>
+                                            <th>Appointment Id</th>
+                                            <th>Name</th>
+                                            <th>Services</th>
+                                            <th>Pet Name</th>
+                                            <th>Species</th>
+                                            <th>Pet Concern</th>
                                             <th>Contact</th>
-                                            <th>Created Date</th>
-                                            <th>Created Time</th>
+                                            <th>Appointment Date</th>
+                                            <th>Time</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-
                                         <?php foreach ($appointments as $appointment): ?>
                                             <tr>
                                                 <td><?= $appointment['appointment_reference'] ?></td>
-                                                <td><?= $appointment['user_id'] ?></td>
-                                                <td><?= $appointment['service_id'] ?></td>
-                                                <td><?= htmlspecialchars($appointment['pet_id']) ?></td>
+                                                <td><?= htmlspecialchars($appointment['fullname']) ?></td> <!-- Display fullname -->
+                                                <td><?= htmlspecialchars($appointment['service_name']) ?></td> <!-- Display service_name -->
+                                                <td><?= htmlspecialchars($appointment['pet_name']) ?></td> <!-- Display pet_name -->
+                                                <td><?= htmlspecialchars($appointment['pet_species']) ?></td> <!-- Display pet_species -->
                                                 <td><?= htmlspecialchars($appointment['pet_symptoms']) ?></td>
                                                 <td><?= htmlspecialchars($appointment['phone_number']) ?></td>
                                                 <td><?= date("F d, Y", strtotime($appointment['created_date'])) ?></td>
                                                 <td><?= date("h:i A", strtotime($appointment['created_time'])) ?></td>
                                                 <td>
-                                                    <form action="" method="post" class="d-inline">
-                                                        <input type="hidden" name="userid" value="<?php echo htmlspecialchars($appointment['appointment_reference']); ?>">
-                                                        <input type="hidden" name="approved" value="Approved">
-                                                        <button type="submit" class="btn btn-sm btn-success">Approve</button>
-                                                    </form>
-                                                    <form action="" method="post" class="d-inline">
-                                                        <input type="hidden" name="userid" value="<?php echo htmlspecialchars($appointment['appointment_reference']); ?>">
-                                                        <input type="hidden" name="decline" value="Decline">
-                                                        <button type="submit" class="btn btn-sm btn-danger">Decline</button>
-                                                    </form>
+                                                    <div class="d-flex align-items-center">
+                                                        <form action="" method="post" class="me-2">
+                                                            <input type="hidden" name="userid" value="<?= htmlspecialchars($appointment['appointment_reference']); ?>">
+                                                            <input type="hidden" name="approved" value="Approved">
+                                                            <input type="hidden" name="appointment_id" value="<?= htmlspecialchars($appointment['appointment_id']) ?>">
+                                                            <input type="hidden" name="user_id" value="<?= htmlspecialchars($appointment['user_id']) ?>">
+                                                            <input type="hidden" name="phone_number" value="<?= htmlspecialchars($appointment['phone_number']) ?>">
+                                                            <input type="hidden" name="fullname" value="<?= htmlspecialchars($appointment['fullname']) ?>">
+
+                                                            <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                                                        </form>
+                                                        <form action="" method="post">
+                                                            <input type="hidden" name="userid" value="<?= htmlspecialchars($appointment['appointment_reference']); ?>">
+                                                            <input type="hidden" name="decline" value="Decline">
+                                                            <input type="hidden" name="appointment_id" value="<?= htmlspecialchars($appointment['appointment_id']) ?>">
+                                                            <input type="hidden" name="user_id" value="<?= htmlspecialchars($appointment['user_id']) ?>">
+                                                            <input type="hidden" name="phone_number" value="<?= htmlspecialchars($appointment['phone_number']) ?>">
+                                                            <input type="hidden" name="fullname" value="<?= htmlspecialchars($appointment['fullname']) ?>">
+                                                            <button type="submit" class="btn btn-sm btn-danger">Decline</button>
+                                                        </form>
+                                                    </div>
                                                 </td>
                                             </tr>
-
                                         <?php endforeach; ?>
-                                        <!-- Additional rows can be added dynamically -->
                                     </tbody>
                                 </table>
-
                             </div>
                         </div>
-
-                    </div>
                 </div>
             </div>
         </div>
     </div>
+    </div>
+
+    <script src="../../../assets/vendors/perfect-scrollbar/perfect-scrollbar.min.js"></script>
+    <script src="../../../assets/js/bootstrap.bundle.min.js"></script>
+
+    <script src="../../../assets/vendors/simple-datatables/simple-datatables.js"></script>
+    <script>
+        // Simple Datatable
+        let table1 = document.querySelector('#table1');
+        let dataTable = new simpleDatatables.DataTable(table1);
+    </script>
+
+    <script src="../../../assets/js/main.js"></script>
+    <script src="../../../assets/js/bootstrap.bundle.min.js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../../assets/vendors/perfect-scrollbar/perfect-scrollbar.min.js"></script>
+    <script src="../../../assets/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

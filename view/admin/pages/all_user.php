@@ -29,7 +29,7 @@ if (isset($_POST['delete_user'])) {
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
 
         if ($stmt->execute()) {
-            echo "<script>('User deleted successfully.'); window.location.href='user_approve_index.php';</script>";
+            echo "<script>('User deleted successfully.'); window.location.href='all_user.php';</script>";
         }
     } catch (PDOException $e) {
         echo "Error deleting user: " . $e->getMessage();
@@ -68,7 +68,7 @@ if (isset($_POST['edit_user'])) {
             'phone_number' => $phone_number,
             'id' => $id
         ]);
-        header("Location: user_approve_index.php");
+        header("Location: all_user.php");
         exit;
     } catch (PDOException $e) {
         echo "Error updating user: " . $e->getMessage();
@@ -83,179 +83,202 @@ if (isset($_POST['edit_user'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
+    <title>Cadiz City Veterinary Office</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Montserrat:wght@600&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #f8f9fa;
-        }
+   
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../../assets/css/bootstrap.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../../assets/vendors/simple-datatables/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css" rel="stylesheet">
 
-        nav.navbar {
-            background-color: #dc3545;
-        }
-
-        nav .navbar-brand {
-            font-family: 'Montserrat', sans-serif;
-        }
-
-        .container {
-            margin-top: 50px;
-        }
-
-        h1 {
-            font-family: 'Montserrat', sans-serif;
-            margin-bottom: 30px;
-        }
-
-        table {
-            background-color: white;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        table th,
-        table td {
-            padding: 15px;
-            text-align: center;
-        }
-
-        table th {
-            background-color: #f1f1f1;
-        }
-
-        table tr:nth-child(odd) {
-            background-color: #f9f9f9;
-        }
-
-        table tr:hover {
-            background-color: #f1f1f1;
-        }
-
-        .navbar-nav .nav-link {
-            font-size: 16px;
-            font-weight: 500;
-            transition: color 0.3s ease;
-        }
-
-        .navbar-nav .nav-link:hover {
-            color: #ffc107;
-        }
-
-        .no-records {
-            text-align: center;
-            padding: 20px;
-            color: #6c757d;
-            font-size: 16px;
-        }
-
-        footer {
-            text-align: center;
-            margin-top: 50px;
-            padding: 15px;
-            background-color: #343a40;
-            color: #fff;
-        }
-    </style>
+    <link rel="stylesheet" href="../../../assets/vendors/perfect-scrollbar/perfect-scrollbar.css">
+    <link rel="stylesheet" href="../../../assets/vendors/bootstrap-icons/bootstrap-icons.css">
+    <link rel="stylesheet" href="../../../assets/css/app.css">
+    <link rel="shortcut icon" href="../../../assets/images/favicon.svg" type="image/x-icon">
 </head>
 
+
+
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-danger">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">Admin Dashboard</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="dashboard.php">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="users.php">Users</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="staff.php">Staff</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="transactions.php">Transaction</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="approved.php">Approved Transaction</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="events.php">Events</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Reports</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="logout.php">Logout</a>
-                    </li>
-                </ul>
+    <div id="app">
+        <div id="sidebar" class="active">
+            <div class="sidebar-wrapper active">
+                <div class="sidebar-header">
+                    <div class="d-flex justify-content-between">
+                    <div class="logo">
+                            <a href="dashboard.php">
+                                <img src="../../../assets/images/logo/vetoff.png" alt="Logo" srcset="" style="width: 230px; height: auto"> <!-- Adjust width as needed -->
+                            </a>
+                        <div class="toggler">
+                            <a href="#" class="sidebar-hide d-xl-none d-block"><i class="bi bi-x bi-middle"></i></a>
+                        </div>
+                    </div>
+                </div>
+                </div>
+                <div class="sidebar-menu">
+                    <ul class="menu">
+                        <li class="sidebar-title">Menu</li>
+
+                        <li class="sidebar-item ">
+                            <a href="dashboard.php" class='sidebar-link'>
+                                <i class="bi bi-grid-fill"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+
+                        <li class="sidebar-item  has-sub ">
+                            <a href="#" class='sidebar-link'>
+                                <i class="bi bi-stack"></i>
+                                <span>Appointment</span>
+                            </a>
+                            <ul class="submenu ">
+                                <li class="submenu-item ">
+                                    <a href="appointment_transactions.php">Pending</a>
+                                </li>
+                                <li class="submenu-item ">
+                                    <a href="approved.php">Approved</a>
+                                    </li>
+                              
+                              </ul>
+
+                                <li class="sidebar-item active ">
+                                 <a href="all_user.php" class='sidebar-link'>
+                                 <i class="bi bi-pen-fill"></i>
+                                <span>Pet Record</span>
+                            </a>
+                        </li>
+                              
+                         
+                        </li>
+                        <li class="sidebar-item  ">
+                            <a href="events.php" class='sidebar-link'>
+                                <i class="bi bi-grid-fill"></i>
+                                <span>Events</span>
+                            </a>
+                        </li>
+
+                        <li class="sidebar-title">Manage User &amp; Staff</li>
+
+                        <li class="sidebar-item   has-sub">
+                            <a href="users.php" class='sidebar-link'>
+                                <i class="bi bi-hexagon-fill"></i>
+                                <span>User Request</span>
+                            </a>
+                            <ul class="submenu ">
+                                <li class="submenu-item  ">
+                                    <a href="users.php">Pending Account</a>
+                                </li>
+                                <li class="submenu-item ">
+                                    <a href="user_approve_index.php">Approved Account</a>
+                                </li>
+                                <li class="submenu-item ">
+                                    <a href="user_decline_index.php">Declined Account</a>
+                                    
+                            </ul>
+                        </li>
+
+                        <li class="sidebar-item  ">
+                            <a href="staff.php" class='sidebar-link'>
+                                <i class="bi bi-file-earmark-medical-fill"></i>
+                                <span>Staff</span>
+                            </a>
+                        </li>
+                        <div class="logout-btn text-center" style="padding: 50px;">
+                    <a href="logout.php" class="btn btn-primary btn-block mt-4 d-flex align-items-center justify-content-center" style="padding: 8px 12px;">
+                        <i class="fa fa-sign-out-alt mr-2" aria-hidden="true"></i> Logout
+                    </a>
+            
+
+                </div>
+                <button class="sidebar-toggler btn x"><i data-feather="x"></i></button>
             </div>
         </div>
-    </nav>
+        
+        <div id="main">
+            <header class="mb-3">
+                <a href="#" class="burger-btn d-block d-xl-none">
+                    <i class="bi bi-justify fs-3"></i>
+                </a>
+            </header>
     <!-- Main Content -->
-    <div class="container">
-        <h1>Accepted Accounts</h1>
 
-        <?php if (empty($result)): ?>
-            <div class="no-records">
-                No accepted accounts found.
-            </div>
-        <?php else: ?>
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Full Name</th>
-                        <th>Address</th>
-                        <th>Phone Number</th>
-                        <th>Information</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($result as $row): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($row['id']) ?></td>
-                            <td><?= htmlspecialchars($row['fullname']) ?></td>
-                            <td><?= htmlspecialchars($row['address']) ?></td>
-                            <td><?= htmlspecialchars($row['phone_number']) ?></td>
-                            <td>
-                                <a href="userinfo.php?user_id=<?= htmlspecialchars($row['user_id']) ?>" class="btn btn-primary">View</a>
-                               </td>
-                            <td>
-                                <button
-                                    class="btn btn-success btn-sm edit-button"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#editUsersModal"
-                                    data-id="<?= htmlspecialchars($row['id']) ?>"
-                                    data-fullname="<?= htmlspecialchars($row['fullname']) ?>"
-                                    data-address="<?= htmlspecialchars($row['address']) ?>"
-                                    data-phone_number="<?= htmlspecialchars($row['phone_number']) ?>"
-                                    data-username="<?= htmlspecialchars($row['username']) ?>">
-                                    Edit
-                                </button>
-                                <button
-                                    type="button"
-                                    class="btn btn-danger btn-sm delete-button"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#deleteUserModal"
-                                    data-id="<?= htmlspecialchars($row['id']) ?>"
-                                    data-username="<?= htmlspecialchars($row['username']) ?>"
-                                    data-fullname="<?= htmlspecialchars($row['fullname']) ?>">
-                                    Delete
-                                </button>
+    <div class="page-heading">
+                <div class="page-title">
+                    <div class="row">
+                        <div class="col-12 col-md-6 order-md-1 order-last">
+                            <h3>Pet Record</h3>
+                            <p class="text-subtitle text-muted">Manage and view Pet records</p>
+                        </div>
+                        <div class="col-12 col-md-6 order-md-2 order-first">
+                            <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                                <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="dashboard.php">Dashboard</a></li>
+                                    <li class="breadcrumb-item active" aria-current="page">Pet Record</li>
+                                </ol>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+                <section class="section">
 
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        <?php endif; ?>
+                <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Pet Owner Table</h5>
     </div>
+    <div class="card-body">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Full Name</th>
+                    <th>Address</th>
+                    <th>Phone Number</th>
+                    <th>Information</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($result as $row): ?>
+                    <tr>
+                        <td><?= htmlspecialchars($row['id']) ?></td>
+                        <td><?= htmlspecialchars($row['fullname']) ?></td>
+                        <td><?= htmlspecialchars($row['address']) ?></td>
+                        <td><?= htmlspecialchars($row['phone_number']) ?></td>
+                        <td>
+                            <a href="userinfo.php?user_id=<?= htmlspecialchars($row['user_id']) ?>" class="btn btn-primary">View</a>
+                        </td>
+                        <td>
+                            <button
+                                class="btn btn-success btn-sm edit-button"
+                                data-bs-toggle="modal"
+                                data-bs-target="#editUsersModal"
+                                data-id="<?= htmlspecialchars($row['id']) ?>"
+                                data-fullname="<?= htmlspecialchars($row['fullname']) ?>"
+                                data-address="<?= htmlspecialchars($row['address']) ?>"
+                                data-phone_number="<?= htmlspecialchars($row['phone_number']) ?>"
+                                data-username="<?= htmlspecialchars($row['username']) ?>">
+                                Edit
+                            </button>
+                            <button
+                                type="button"
+                                class="btn btn-danger btn-sm delete-button"
+                                data-bs-toggle="modal"
+                                data-bs-target="#deleteUserModal"
+                                data-id="<?= htmlspecialchars($row['id']) ?>"
+                                data-username="<?= htmlspecialchars($row['username']) ?>"
+                                data-fullname="<?= htmlspecialchars($row['fullname']) ?>">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+</div>
 
 
     <!-- View Users Modal -->
@@ -271,7 +294,7 @@ if (isset($_POST['edit_user'])) {
                     <p><strong>Address:</strong> <span id="view-address"></span></p>
                     <p><strong>Phone Number:</strong> <span id="view-phone_number"></span></p>
                     <p><strong>Username:</strong> <span id="view-username"></span></p>
-                    <p><strong>Password:</strong> <span id="view-password"></span></p>
+                   
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -418,6 +441,21 @@ if (isset($_POST['edit_user'])) {
 
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="../../../assets/vendors/perfect-scrollbar/perfect-scrollbar.min.js"></script>
+    <script src="../../../assets/js/bootstrap.bundle.min.js"></script>
+
+    <script src="../../../assets/vendors/simple-datatables/simple-datatables.js"></script>
+    <script>
+        // Simple Datatable
+        let table1 = document.querySelector('#table1');
+        let dataTable = new simpleDatatables.DataTable(table1);
+    </script>
+
+    <script src="../../../assets/js/main.js"></script>
+</body>
+
+</html>
 
 </body>
 

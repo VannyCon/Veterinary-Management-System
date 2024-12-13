@@ -2,10 +2,26 @@
 
 /////////////////////////////////////////////////////
 session_start(); // Ensure the session is started  
-if(!isset($_SESSION['user_id'])) {
+if (!isset($_SESSION['user_id'])) {
     header("Location: ../index.php"); 
 }
 /////////////////////////////////////////////////////
+
+// Redirect based on `isApproved` status
+if (isset($_SESSION['isApproved'])) {
+    if ($_SESSION['isApproved'] == 0) {
+        header("Location: decline.php");
+        exit;
+    } elseif (is_null($_SESSION['isApproved'])) {
+        header("Location: pending.php");
+        exit;
+    }
+} else {
+    // Handle case where `isApproved` is not set (optional)
+    header("Location: ../index.php");
+    exit;
+}
+
 
 // Database connection
 $host = 'localhost';
@@ -17,9 +33,22 @@ try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+    // Fetch user information
+    $user_id = $_SESSION['user_id'];
+    $query = "SELECT fullname FROM tbl_user WHERE user_id = ?";
+    $stmt = $pdo->prepare($query);
+    $stmt->execute([$user_id]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // Set the user name for the welcome message
+    if ($user) {
+        $user_name = $user['fullname'];
+    } else {
+        $user_name = 'User';
+    }
+
     // Function to fetch all pets for the logged-in user
-    function getAllPetInfo($pdo, $user_id)
-    {
+    function getAllPetInfo($pdo, $user_id) {
         try {
             // SQL query to fetch pets belonging to the user
             $query = "
@@ -61,116 +90,167 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Cadiz City Veterinary Office</title>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../../assets/css/bootstrap.css">
+
+    <link rel="stylesheet" href="../../../assets/vendors/iconly/bold.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="../../../assets/vendors/perfect-scrollbar/perfect-scrollbar.css">
+    <link rel="stylesheet" href="../../../assets/vendors/bootstrap-icons/bootstrap-icons.css">
+    <link rel="stylesheet" href="../../../assets/css/app.css">
+    <link rel="shortcut icon" href="../../../assets/images/favicon.svg" type="image/x-icon">
 </head>
 
+
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">User Dashboard</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="navfitem"><a class="nav-link active" href="dashboard.php">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Profile</a></li>
-                    <li class="nav-item"><a class="nav-link" href="transaction.php">Transaction</a></li>
-                    <li class="nav-item"><a class="nav-link" href="appointment.php">Appointment</a></li>
-                    <li class="nav-item"><a class="nav-link" href="../logout.php">Logout</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <div class="container mt-4">
-        <h1 class="text-primary">Welcome, User!</h1>
-        <p>Here, you can view and update your profile information.</p>
-
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Profile</h5>
-                <p class="card-text">Update your personal information and preferences.</p>
-                <!-- Fetch user info -->
-                <?php
-                try {
-                    $query = "SELECT id, username, password, fullname, address, phone_number, isApproved 
-                    FROM tbl_user 
-                    WHERE user_id = ?"; 
-                    $stmt = $pdo->prepare($query);
-                    $stmt->execute([$_SESSION['user_id']]);
-                    $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-                    if ($user) {
-                        echo '<ul class="list-group">';
-                        echo '<li class="list-group-item"><strong>Full Name:</strong> ' . htmlspecialchars($user['fullname']) . '</li>';
-                        echo '<li class="list-group-item"><strong>Username:</strong> ' . htmlspecialchars($user['username']) . '</li>';
-                        echo '<li class="list-group-item"><strong>Password:</strong> ' . htmlspecialchars($user['password']) . '</li>';
-                        echo '<li class="list-group-item"><strong>Address:</strong> ' . htmlspecialchars($user['address']) . '</li>';
-                        echo '<li class="list-group-item"><strong>Phone Number:</strong> ' . htmlspecialchars($user['phone_number']) . '</li>';
-                        echo '<li class="list-group-item"><strong>Account Approval Status:</strong> ' . ($user['isApproved'] ? 'Approved' : 'Pending') . '</li>';
-                        echo '</ul>';
-                    } else {
-                        echo '<p class="text-danger">User information not found for ID: ' . htmlspecialchars($_SESSION['user_id']) . '</p>';
-                    }
-                } catch (PDOException $e) {
-                    echo '<p class="text-danger">Error fetching user information: ' . htmlspecialchars($e->getMessage()) . '</p>';
-                }
-                ?>
-
-                <a href="edit_profile.php" class="btn btn-primary mt-3">Edit Profile</a>
-            </div>
-        </div>
-
-        <br>
-
-        <div class="card mb-3">
-            <div class="card-header">
-                <div class="row">
-                    <div class="col">
-                        <h5 class="card-title">Pet</h5>
-                    </div>
-                    <div class="col text-end">
-                        <a href="pet_add.php" class="btn btn-warning">Add Pet</a>
+    <div id="app">
+        <div id="sidebar" class="active">
+            <div class="sidebar-wrapper active">
+                <div class="sidebar-header">
+                    <div class="d-flex justify-content-between">
+                    <div class="logo">
+                    <a href="dashboard.php">
+                        <img src="../../../assets/images/logo/vetoff.png" alt="Logo" srcset="" style="width: 230px; height: auto"> <!-- Adjust width as needed -->
+                    </a>
+                </div>
+                        <div class="toggler">
+                            <a href="#" class="sidebar-hide d-xl-none d-block"><i class="bi bi-x bi-middle"></i></a>
+                        </div>
                     </div>
                 </div>
-            </div>
+                
+                
+                <div class="sidebar-menu">
+                    <ul class="menu">
+                        <li class="sidebar-title">Menu</li>
 
-            <div class="card-body">
-                <div class="row">
-                    <?php
-                    // Check if there are any pets to display
-                    if (!empty($pets)) {
-                        foreach ($pets as $pet) {
-                            echo '
-                                <div class="col-md-4 mb-4">
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <h5 class="card-title">' . htmlspecialchars($pet['pet_name']) . '</h5>
-                                            <p class="card-text">Species: ' . htmlspecialchars($pet['pet_species']) . '</p>
-                                            <p class="card-text">Age: ' . htmlspecialchars($pet['pet_age']) . '</p>
-                                            <!-- Trigger Edit Modal -->
-                                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editPetModal" data-pet-id="' . htmlspecialchars($pet['pet_id']) . '" data-pet-name="' . htmlspecialchars($pet['pet_name']) . '" data-pet-species="' . htmlspecialchars($pet['pet_species']) . '" data-pet-age="' . htmlspecialchars($pet['pet_age']) . '">Edit</button>
+                        <li class="sidebar-item active ">
+                            <a href="dashboard.php" class='sidebar-link'>
+                                <i class="bi bi-grid-fill"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+
+                        <li class="sidebar-item  ">
+                            <a href="appointment.php" class='sidebar-link'>
+                                <i class="bi bi-grid-1x2-fill"></i>
+                                <span>Appointment</span>
+                            </a>
+                        </li>
+
+                        <li class="sidebar-item  ">
+                            <a href="transaction.php" class='sidebar-link'>
+                                <i class="bi bi-stack"></i>
+                                <span>Transaction</span>
+                            </a>
+                        </li>
+
+                        <li class="sidebar-item  ">
+                            <a href="profile_view.php" class='sidebar-link'>
+                                <i class="bi bi-image-fill"></i>
+                                <span>Profile</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="logout-btn text-center" style="padding: 50px;">
+                    <a href="../logout.php" class="btn btn-primary btn-block mt-4 d-flex align-items-center justify-content-center" style="padding: 8px 12px;">
+                        <i class="fa fa-sign-out-alt mr-2" aria-hidden="true"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div id="main">
+            <header class="mb-3">
+                <a href="#" class="burger-btn d-block d-xl-none">
+                    <i class="bi bi-justify fs-3"></i>
+                </a>
+            </header>
+            <div class="page-heading">
+            </div>
+            <div class="page-content">
+                <section class="row">
+                    <div class="col-12 col-lg-12">
+                        <div class="row">
+                            <div class="col-12 col-lg-8 col-md-12">
+                                <div class="card">
+                                    <div class="card-body px-3 py-4-5">
+                                        <div class="row">
+                                            </div>
                                             
-                                            <!-- Trigger Delete Modal -->
-                                            <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deletePetModal" data-pet-id="' . htmlspecialchars($pet['pet_id']) . '">Delete</button>
-                                            
-                                            <a href="pet_history.php?pet_id=' . htmlspecialchars($pet['pet_id']) . '" class="btn btn-info">History</a>
+                                            <div class="col-md-12">
+                                            <h1 id="welcomeMessage" class="text-primary">Hi, <?php echo htmlspecialchars($user_name); ?>!</h1>
+                                            <p>Welocome to Cadiz City Veterinary Office. We're so glad you're here. </p>
+
+                                            <a href="profile_view.php" class="btn btn-primary">View Your Profile</a>
+                                          
+                                                
+                                            </div>
                                         </div>
                                     </div>
-                                </div>';
-                        }
-                    } else {
-                        // If no pets are found, display a message
-                        echo "<p class='text-muted'>No pets found. Please add a pet.</p>";
-                    }
-                    ?>
-                </div>
-            </div>
-        </div>
+                                </div>
+                                <div class="col-12 col-lg-4 col-md-12">
+                                <div class="card">
+                                    <div class="card-body px-3 py-4-5">
+                                        <div class="row">
+                                            </div>
+                                            <div class="col-md-12">
+                                            <h4>Pet Registration </h4>
+                                            <p>Add Your Pet's Information to Schedule an Appointment </p>
+                                            <a href="pet_add.php" class="btn btn-primary">Add Pet</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <h2>Pet Information</h2>
 
-        <!-- Edit Pet Modal -->
+                               <?php
+                                if (!empty($pets)) {
+                                    foreach ($pets as $pet) {
+                                        echo '
+                                        <div class="col-6 col-lg-4 col-md-6">
+                                            <div class="card">
+                                                <div class="card-body px-3 py-4-5">
+                                                    <div class="row">
+                                                        <div class="col-md-8">
+                                                            <h6 class="text-muted font-semibold">Pet Name</h6>
+                                                            <h6 class="font-extrabold mb-0">' . htmlspecialchars($pet['pet_name']) . '</h6>
+                                                            <p class="text-muted">Species: ' . htmlspecialchars($pet['pet_species']) . '</p>
+                                                            <p class="text-muted">Age: ' . htmlspecialchars($pet['pet_age']) . '</p>
+                                                            <div class="d-flex justify-content-around mt-3">
+                                                                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editPetModal" data-pet-id="' . htmlspecialchars($pet['pet_id']) . '" data-pet-name="' . htmlspecialchars($pet['pet_name']) . '" data-pet-species="' . htmlspecialchars($pet['pet_species']) . '" data-pet-age="' . htmlspecialchars($pet['pet_age']) . '">Edit</button>
+                                                                <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deletePetModal" data-pet-id="' . htmlspecialchars($pet['pet_id']) . '">Delete</button>
+                                                                <a href="pet_history.php?pet_id=' . htmlspecialchars($pet['pet_id']) . '" class="btn btn-success btn-sm">View</a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>';
+                                    }
+                                } else {
+                                    echo "<p class='text-muted'>No pets found. Please add a pet.</p>";
+                                }
+                                ?>
+
+                         </div>       
+                             </div>
+                                    
+                            </section>
+                        </div>
+
+   
+
+    
+      
+    
+           <!-- Edit Pet Modal -->
         <div class="modal fade" id="editPetModal" tabindex="-1" aria-labelledby="editPetModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -255,6 +335,13 @@ try {
             modalDeletePetId.value = petId;
         });
     </script>
-</body>
+    <script src="../../../../assets/vendors/perfect-scrollbar/perfect-scrollbar.min.js"></script>
+                <script src="../../../assets/js/bootstrap.bundle.min.js"></script>
 
-</html>
+                <script src="../../../assets/vendors/apexcharts/apexcharts.js"></script>
+                <script src="../../../assets/js/pages/dashboard.js"></script>
+
+                <script src="../../../assets/js/main.js"></script>
+            </body>
+
+            </html>
